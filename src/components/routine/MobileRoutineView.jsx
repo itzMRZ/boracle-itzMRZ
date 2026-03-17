@@ -154,6 +154,8 @@ const MobileRoutineView = ({
                                     ? 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                                     : 'bg-gray-50 dark:bg-gray-800 text-gray-400 dark:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700'
                                 }`}
+                            aria-pressed={isSelected}
+                            aria-label={`${day}${count > 0 ? `, ${count} classes` : ''}`}
                         >
                             {dayAbbr[idx]}
                             {count > 0 && !isSelected && (
@@ -235,8 +237,10 @@ const MobileRoutineView = ({
                                                 onRemoveCourse(course);
                                             }}
                                             className="ml-2 p-2 rounded-full bg-red-100 dark:bg-red-900/30 hover:bg-red-200 dark:hover:bg-red-800/40 transition-colors flex-shrink-0"
+                                            aria-label={`Remove ${course.courseCode}${isLab ? 'L' : ''}-${course.sectionName} from routine`}
+                                            title="Remove course"
                                         >
-                                            <X className="w-4 h-4 text-red-500 dark:text-red-400" />
+                                            <X className="w-4 h-4 text-red-500 dark:text-red-400" aria-hidden="true" />
                                         </button>
                                     )}
                                 </div>
