@@ -1,13 +1,16 @@
 // GET API that fetches total swaps, reviews, materials
 
-import { auth } from "@/auth";
 import { db, sql } from "@/lib/db";
 import { courseSwap, reviews, courseMaterials } from "@/lib/db/schema";
 import { NextResponse } from "next/server";
 
+// ⚡ Bolt: Cache this endpoint to prevent unnecessary DB hits on every homepage load
+export const revalidate = 3600; // Revalidate every hour
+
 export async function GET(req) {
     try {
-        await auth();
+        // ⚡ Bolt: Removed unnecessary await auth() check since these are public global stats
+        // This avoids checking session/cookies and reduces latency
         const [totalSwaps, totalReviews, totalMaterials] = await Promise.all([
             db.select({ count: sql`count(*)` }).from(courseSwap),
             db.select({ count: sql`count(*)` }).from(reviews),
