@@ -5,7 +5,8 @@ const ALLOWED_EXTENSIONS = ['pdf', 'pptx', 'doc', 'docx'];
 
 // R2_ENDPOINT may include a trailing path segment (e.g. /boracle) from the
 // API-token scope.  Strip it — the SDK needs just the origin.
-const r2Origin = process.env.R2_ENDPOINT.replace(/\/[^/]+$/, '');
+const r2Endpoint = process.env.R2_ENDPOINT || '';
+const r2Origin = r2Endpoint.replace(/\/[^/]+$/, '');
 
 const s3Client = new S3Client({
     region: 'auto',
