@@ -1,0 +1,3 @@
+## 2024-03-19 - Removed unnecessary auth() call from public API to enable static caching
+**Learning:** In Next.js App Router, using NextAuth's `auth()` (which reads cookies) automatically opts the route into dynamic rendering, defeating Next.js static optimizations. For public APIs that don't need user information or real-time precision (e.g., global stats), this causes unnecessary database load on every request.
+**Action:** When creating or reviewing public API routes that fetch global data, avoid calling `auth()` and use Route Segment Caching (`export const revalidate = ...`) to significantly reduce database load and improve response times.
