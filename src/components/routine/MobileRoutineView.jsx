@@ -140,15 +140,21 @@ const MobileRoutineView = ({
     return (
         <div className="w-full">
             {/* Day Tabs - sticky at top */}
-            <div className="flex overflow-x-auto gap-1.5 pb-3 pt-2 px-1 scrollbar-hide sticky top-0 z-10 bg-white dark:bg-gray-900">
+            <div
+                className="flex overflow-x-auto gap-1.5 pb-3 pt-2 px-1 scrollbar-hide sticky top-0 z-10 bg-white dark:bg-gray-900"
+                role="tablist"
+                aria-label="Routine Days"
+            >
                 {days.map((day, idx) => {
                     const isSelected = selectedDay === day;
                     const count = coursesPerDay[day];
                     return (
                         <button
                             key={day}
+                            role="tab"
+                            aria-selected={isSelected}
                             onClick={() => setSelectedDay(day)}
-                            className={`flex-shrink-0 px-3.5 py-2 rounded-full text-sm font-medium transition-all relative ${isSelected
+                            className={`flex-shrink-0 px-3.5 py-2 rounded-full text-sm font-medium transition-all relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${isSelected
                                 ? 'bg-blue-600 text-white shadow-md'
                                 : count > 0
                                     ? 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
@@ -181,7 +187,9 @@ const MobileRoutineView = ({
                         return (
                             <div
                                 key={`${course.sectionId}-${type}-${idx}`}
-                                className={`rounded-xl p-3.5 border transition-all active:scale-[0.98] ${hasConflict
+                                role="button"
+                                tabIndex={0}
+                                className={`rounded-xl p-3.5 border transition-all active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${hasConflict
                                     ? 'bg-red-50 dark:bg-red-900/20 border-red-300 dark:border-red-700'
                                     : isLab
                                         ? 'bg-purple-50 dark:bg-purple-900/20 border-purple-300 dark:border-purple-700'
@@ -190,6 +198,14 @@ const MobileRoutineView = ({
                                 onClick={() => {
                                     setBottomSheetCourse(course);
                                     setBottomSheetTitle(`${course.courseCode}${isLab ? 'L' : ''}`);
+                                }}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' || e.key === ' ') {
+                                        if (e.target !== e.currentTarget) return;
+                                        e.preventDefault();
+                                        setBottomSheetCourse(course);
+                                        setBottomSheetTitle(`${course.courseCode}${isLab ? 'L' : ''}`);
+                                    }
                                 }}
                             >
                                 {/* Time */}
@@ -230,11 +246,13 @@ const MobileRoutineView = ({
                                     {/* Remove button */}
                                     {showRemoveButtons && onRemoveCourse && (
                                         <button
+                                            aria-label={`Remove course ${course.courseCode}`}
+                                            title="Remove course"
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 onRemoveCourse(course);
                                             }}
-                                            className="ml-2 p-2 rounded-full bg-red-100 dark:bg-red-900/30 hover:bg-red-200 dark:hover:bg-red-800/40 transition-colors flex-shrink-0"
+                                            className="ml-2 p-2 rounded-full bg-red-100 dark:bg-red-900/30 hover:bg-red-200 dark:hover:bg-red-800/40 transition-colors flex-shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
                                         >
                                             <X className="w-4 h-4 text-red-500 dark:text-red-400" />
                                         </button>

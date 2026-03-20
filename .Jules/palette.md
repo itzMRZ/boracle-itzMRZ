@@ -1,0 +1,3 @@
+## 2024-10-27 - Keyboard Event Bubbling in Nested Interactive Elements
+**Learning:** When making a parent container keyboard accessible (`role="button"`, `tabIndex={0}`, `onKeyDown` with `Enter`/`Space`), keyboard events from nested interactive elements (like a `button`) will bubble up. If the parent's `onKeyDown` calls `e.preventDefault()`, it will intercept the event and prevent the child button's native action (e.g., `click`) from firing.
+**Action:** When adding keyboard navigation to a container with child buttons, always check `if (e.target !== e.currentTarget) return;` in the container's `onKeyDown` handler, or have the child button's `onKeyDown` call `e.stopPropagation()`.
