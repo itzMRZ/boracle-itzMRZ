@@ -67,6 +67,7 @@ export default function NavigationBar() {
                   <Button
                     variant="ghost"
                     size="icon"
+                    aria-label="Open menu"
                     className="hover:bg-blue-50 dark:hover:bg-blue-900/30"
                   >
                     <Menu className="h-5 w-5 text-gray-700 dark:text-gray-200" />
