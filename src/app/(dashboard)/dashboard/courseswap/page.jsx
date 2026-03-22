@@ -219,10 +219,15 @@ const CourseSwapPage = () => {
 
   // Get all available courses (current + all cached backups) for filtering
   const allAvailableCourses = useMemo(() => {
+    // ⚡ Bolt Optimization: Use a Set to track seen sectionIds to reduce the
+    // complexity of deduplicating courses from O(N^2) (using .find inside the loop) to O(N).
     const allCourses = [...currentCourses];
+    const seenSectionIds = new Set(currentCourses.map(c => c.sectionId));
+
     Object.values(semesterCoursesCache).forEach(courses => {
       courses.forEach(course => {
-        if (!allCourses.find(c => c.sectionId === course.sectionId)) {
+        if (!seenSectionIds.has(course.sectionId)) {
+          seenSectionIds.add(course.sectionId);
           allCourses.push(course);
         }
       });
