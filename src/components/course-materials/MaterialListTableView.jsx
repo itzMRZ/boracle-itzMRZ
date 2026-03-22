@@ -420,6 +420,7 @@ const MaterialListTableView = ({
                                                         <Button
                                                             size="icon"
                                                             variant="ghost"
+                                                            aria-label="Delete Material"
                                                             className="w-8 h-8 rounded-full text-gray-500 hover:text-red-600 dark:hover:text-red-400 bg-gray-50 dark:bg-gray-800/50 hover:bg-red-50 dark:hover:bg-red-900/20"
                                                             onClick={() => setSelectedForDelete(material)}
                                                             title="Delete Material"
@@ -430,6 +431,7 @@ const MaterialListTableView = ({
                                                     <Button
                                                         size="icon"
                                                         variant="ghost"
+                                                        aria-label="Share Link"
                                                         className="w-8 h-8 rounded-full text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40"
                                                         onClick={() => handleShare(material)}
                                                         title="Share Link"
@@ -442,6 +444,7 @@ const MaterialListTableView = ({
                                                             <Button
                                                                 size="icon"
                                                                 variant="ghost"
+                                                                aria-label="Download Material"
                                                                 className="w-8 h-8 rounded-full text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40"
                                                                 onClick={() => handleDownload(material)}
                                                                 title="Download Material"
@@ -452,6 +455,7 @@ const MaterialListTableView = ({
                                                         <Button
                                                             onClick={() => isLink ? window.open(getExternalUrl(material), '_blank') : setSelectedForView(material)}
                                                             size="icon"
+                                                            aria-label={isLink ? 'Open Link' : 'View Material'}
                                                             className="w-8 h-8 rounded-full bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 !text-white"
                                                             title={isLink ? 'Open Link' : 'View Material'}
                                                         >

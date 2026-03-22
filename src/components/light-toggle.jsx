@@ -21,7 +21,7 @@ export function ModeToggle() {
 
   if (!mounted) {
     return (
-      <Button className="bg-white dark:bg-blue-900 hover:bg-gray-100 dark:hover:bg-blue-800" variant="outline" size="icon">
+      <Button aria-label="Toggle theme" className="bg-white dark:bg-blue-900 hover:bg-gray-100 dark:hover:bg-blue-800" variant="outline" size="icon">
         <span className="sr-only">Toggle theme</span>
       </Button>
     )
@@ -30,6 +30,7 @@ export function ModeToggle() {
   return (
     <Button 
       onClick={toggleTheme}
+      aria-label="Toggle theme"
       className="bg-white dark:bg-blue-900 hover:bg-gray-100 dark:hover:bg-blue-800 transition-all duration-300" 
       variant="outline" 
       size="icon"
