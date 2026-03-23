@@ -1,0 +1,3 @@
+## 2024-05-15 - [Optimize course lookup rendering with O(1) Sets]
+**Learning:** Using `Array.find` or `Array.some` inside a large rendering loop (`.map` over displayed courses) combined with large tracked user arrays (`selectedCourses`) causes severe O(N*M) client-side performance degradation during React re-renders. Every keystroke search or scroll can invoke this loop dozens of times, causing jank.
+**Action:** Always pre-compute a lookup `Set` (e.g., `new Set(selectedCourses.map(c => c.sectionId))`) utilizing `useMemo` before entering a `.map` that renders rows or list items, turning lookup time from O(N) to O(1).

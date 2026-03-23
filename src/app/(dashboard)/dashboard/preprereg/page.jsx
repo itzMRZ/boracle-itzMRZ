@@ -312,6 +312,9 @@ const PreRegistrationPage = () => {
     return filteredCourses.slice(0, displayCount);
   }, [filteredCourses, displayCount]);
 
+  // ⚡ Bolt: Create O(1) lookup sets to prevent O(N^2) complexity in re-renders when rendering displayed courses
+  const selectedSectionIds = useMemo(() => new Set(selectedCourses.map(c => c.sectionId)), [selectedCourses]);
+
   // Reset display count when filters change
   useEffect(() => {
     setDisplayCount(50);
@@ -429,7 +432,6 @@ const PreRegistrationPage = () => {
     const existsByCourse = selectedCourses.find(c => c.courseCode === course.courseCode);
 
     if (existsBySection) {
-      // Removing course
       // Removing course
       setSelectedCourses(prev => prev.filter(c => c.sectionId !== course.sectionId));
     } else if (existsByCourse) {
@@ -827,7 +829,7 @@ const PreRegistrationPage = () => {
           <div className="space-y-3 px-1">
             {displayedCourses.map((course, index) => {
               const isLast = index === displayedCourses.length - 1;
-              const isSelected = !!selectedCourses.find(c => c.sectionId === course.sectionId);
+              const isSelected = selectedSectionIds.has(course.sectionId);
 
               return (
                 <div
@@ -936,7 +938,7 @@ const PreRegistrationPage = () => {
               <tbody>
                 {displayedCourses.map((course, index) => {
                   const isLast = index === displayedCourses.length - 1;
-                  const isSelected = selectedCourses.find(c => c.sectionId === course.sectionId);
+                  const isSelected = selectedSectionIds.has(course.sectionId);
                   const availableSeats = course.capacity - course.consumedSeat;
 
                   return (
