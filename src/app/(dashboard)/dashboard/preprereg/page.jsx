@@ -233,6 +233,11 @@ const PreRegistrationPage = () => {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
+  // O(1) lookup set for selected courses to optimize filtering and rendering
+  const selectedCourseIds = useMemo(() => {
+    return new Set(selectedCourses.map(c => c.sectionId));
+  }, [selectedCourses]);
+
   // Apply filters and search
   const filteredCourses = useMemo(() => {
     let filtered = [...courses];
@@ -268,7 +273,7 @@ const PreRegistrationPage = () => {
     }
 
     if (filters.onlySelected) {
-      filtered = filtered.filter(course => selectedCourses.some(c => c.sectionId === course.sectionId));
+      filtered = filtered.filter(course => selectedCourseIds.has(course.sectionId));
     }
 
     // Apply sorting
@@ -306,7 +311,7 @@ const PreRegistrationPage = () => {
     }
 
     return filtered;
-  }, [debouncedSearchTerm, courses, filters, sortConfig, seatAnimations, selectedCourses]);
+  }, [debouncedSearchTerm, courses, filters, sortConfig, seatAnimations, selectedCourseIds]);
 
   const displayedCourses = useMemo(() => {
     return filteredCourses.slice(0, displayCount);
@@ -827,7 +832,7 @@ const PreRegistrationPage = () => {
           <div className="space-y-3 px-1">
             {displayedCourses.map((course, index) => {
               const isLast = index === displayedCourses.length - 1;
-              const isSelected = !!selectedCourses.find(c => c.sectionId === course.sectionId);
+              const isSelected = selectedCourseIds.has(course.sectionId);
 
               return (
                 <div
@@ -936,7 +941,7 @@ const PreRegistrationPage = () => {
               <tbody>
                 {displayedCourses.map((course, index) => {
                   const isLast = index === displayedCourses.length - 1;
-                  const isSelected = selectedCourses.find(c => c.sectionId === course.sectionId);
+                  const isSelected = selectedCourseIds.has(course.sectionId);
                   const availableSeats = course.capacity - course.consumedSeat;
 
                   return (
