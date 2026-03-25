@@ -785,8 +785,10 @@ const SavedRoutinesPage = () => {
       const allCourses = await response.json();
 
       // Filter courses that match the section IDs in the routine
+      // ⚡ Bolt: Optimize O(N*M) lookup by pre-computing a Set of section IDs
+      const sectionIdsSet = new Set(sectionIds);
       const matchedCourses = allCourses.filter(course =>
-        sectionIds.includes(course.sectionId)
+        sectionIdsSet.has(course.sectionId)
       );
 
       setRoutineCourses(matchedCourses.map(course => ({
@@ -821,8 +823,10 @@ const SavedRoutinesPage = () => {
       const allCourses = await response.json();
 
       // Filter courses that match the section IDs
+      // ⚡ Bolt: Optimize O(N*M) lookup by pre-computing a Set of section IDs
+      const sectionIdsSet = new Set(sectionIds);
       const matchedCourses = allCourses.filter(course =>
-        sectionIds.includes(course.sectionId)
+        sectionIdsSet.has(course.sectionId)
       );
 
       // Write matched courses to localStorage (same key preprereg uses)
@@ -861,12 +865,22 @@ const SavedRoutinesPage = () => {
       const response = await fetch('https://usis-cdn.eniamza.com/connect.json');
       const allCourses = await response.json();
 
+      // ⚡ Bolt: Optimize O(N*M) lookup by pre-computing a Set of all section IDs
+      // and creating a lookup map for faster friend identification.
+      const allSectionIdsSet = new Set(allSectionIds);
+      const sectionIdToFriendMap = new Map();
+      friends.forEach(friend => {
+        friend.sectionIds.forEach(id => {
+          sectionIdToFriendMap.set(id, friend);
+        });
+      });
+
       // Filter courses that match the section IDs and attach friend info
       const matchedCourses = allCourses
-        .filter(course => allSectionIds.includes(course.sectionId))
+        .filter(course => allSectionIdsSet.has(course.sectionId))
         .map(course => {
           // Find which friend this course belongs to
-          const friend = friends.find(f => f.sectionIds.includes(course.sectionId));
+          const friend = sectionIdToFriendMap.get(course.sectionId);
           return {
             ...course,
             friendName: friend?.friendName || 'Unknown',
