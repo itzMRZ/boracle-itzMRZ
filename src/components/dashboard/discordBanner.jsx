@@ -6,7 +6,8 @@ export default function DiscordBanner() {
             href="https://discord.eniamza.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center px-5 py-2.5 rounded-xl bg-transparent border border-blue-300 dark:border-blue-800 hover:bg-blue-900/20 dark:hover:bg-blue-400/15 transition-colors duration-200"
+            aria-label="Join us on Discord (opens in a new tab)"
+            className="inline-flex items-center px-5 py-2.5 rounded-xl bg-transparent border border-blue-300 dark:border-blue-800 hover:bg-blue-900/20 dark:hover:bg-blue-400/15 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
         >
             <span
                 className="text-sm font-semibold text-blue-900 dark:text-blue-300 tracking-wide uppercase whitespace-nowrap"
