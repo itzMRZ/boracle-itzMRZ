@@ -239,10 +239,12 @@ const PreRegistrationPage = () => {
 
     // Apply search
     if (debouncedSearchTerm) {
+      // ⚡ Bolt: Optimize search filtering by lowercasing search term once
+      const lowerSearchTerm = debouncedSearchTerm.toLowerCase();
       filtered = filtered.filter(course =>
-        course.courseCode?.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        course.faculties?.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        course.sectionName?.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
+        course.courseCode?.toLowerCase().includes(lowerSearchTerm) ||
+        course.faculties?.toLowerCase().includes(lowerSearchTerm) ||
+        course.sectionName?.toLowerCase().includes(lowerSearchTerm)
       );
     }
 
@@ -254,11 +256,13 @@ const PreRegistrationPage = () => {
     }
 
     if (filters.avoidFaculties.length > 0) {
-      filtered = filtered.filter(course =>
-        !filters.avoidFaculties.some(faculty =>
-          course.faculties?.toLowerCase().includes(faculty.toLowerCase())
-        )
-      );
+      // ⚡ Bolt: Optimize faculty filtering by pre-computing lowercased avoid faculties
+      const lowerAvoidFaculties = filters.avoidFaculties.map(f => f.toLowerCase());
+      filtered = filtered.filter(course => {
+        if (!course.faculties) return true;
+        const lowerCourseFaculties = course.faculties.toLowerCase();
+        return !lowerAvoidFaculties.some(faculty => lowerCourseFaculties.includes(faculty));
+      });
     }
 
     if (filters.labFilter === 'with-lab') {
@@ -268,7 +272,9 @@ const PreRegistrationPage = () => {
     }
 
     if (filters.onlySelected) {
-      filtered = filtered.filter(course => selectedCourses.some(c => c.sectionId === course.sectionId));
+      // ⚡ Bolt: Optimize O(N*M) lookup inside .filter() by pre-computing a Set of selected section IDs.
+      const selectedIds = new Set(selectedCourses.map(c => c.sectionId));
+      filtered = filtered.filter(course => selectedIds.has(course.sectionId));
     }
 
     // Apply sorting
