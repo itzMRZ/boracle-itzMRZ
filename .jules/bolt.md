@@ -1,0 +1,3 @@
+## 2024-03-26 - Reduce Redundant String Manipulations in Hot Paths
+**Learning:** When filtering large arrays based on string transformations (e.g., calling `.toLowerCase()`), computing the transformed search term *inside* the array `.filter()` or `.some()` methods forces the engine to redundantly recalculate the same value for every single element, leading to severe main thread bottlenecks on large datasets.
+**Action:** Compute the transformed string (e.g., `const lowerSearchTerm = searchTerm.toLowerCase();`) outside the loop or `.filter()` operation to avoid O(N) redundant calculations per item and maintain linear frontend performance.
