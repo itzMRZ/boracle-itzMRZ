@@ -1,0 +1,3 @@
+## 2024-05-24 - Pre-compute and avoid O(N*M) lookups inside React render cycles
+**Learning:** Calling `.some()` inside `.filter()` blocks during React useMemo hook renders leads to performance bottlenecks that block UI responsiveness, especially when lists get larger. Additionally, doing string operations like `toLowerCase()` repeatedly inside an array iteration function is a heavy operation.
+**Action:** When filtering or looping through large arrays based on string transformations, compute the transformed search term outside the loop. Use `Set` for O(1) existence checks rather than iterating arrays repeatedly inside loops.
