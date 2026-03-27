@@ -239,10 +239,11 @@ const PreRegistrationPage = () => {
 
     // Apply search
     if (debouncedSearchTerm) {
+      const lowerSearch = debouncedSearchTerm.toLowerCase();
       filtered = filtered.filter(course =>
-        course.courseCode?.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        course.faculties?.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        course.sectionName?.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
+        course.courseCode?.toLowerCase().includes(lowerSearch) ||
+        course.faculties?.toLowerCase().includes(lowerSearch) ||
+        course.sectionName?.toLowerCase().includes(lowerSearch)
       );
     }
 
@@ -254,11 +255,14 @@ const PreRegistrationPage = () => {
     }
 
     if (filters.avoidFaculties.length > 0) {
-      filtered = filtered.filter(course =>
-        !filters.avoidFaculties.some(faculty =>
-          course.faculties?.toLowerCase().includes(faculty.toLowerCase())
-        )
-      );
+      // Pre-compute lowercased avoided faculties for O(1) matching
+      const avoidedFacultiesLower = filters.avoidFaculties.map(f => f.toLowerCase());
+      filtered = filtered.filter(course => {
+        const courseFacultiesLower = course.faculties?.toLowerCase() || '';
+        return !avoidedFacultiesLower.some(faculty =>
+          courseFacultiesLower.includes(faculty)
+        );
+      });
     }
 
     if (filters.labFilter === 'with-lab') {
@@ -268,7 +272,9 @@ const PreRegistrationPage = () => {
     }
 
     if (filters.onlySelected) {
-      filtered = filtered.filter(course => selectedCourses.some(c => c.sectionId === course.sectionId));
+      // ⚡ Bolt: Replace O(N*M) `.some()` inside loop with O(1) Set lookup
+      const selectedIds = new Set(selectedCourses.map(c => c.sectionId));
+      filtered = filtered.filter(course => selectedIds.has(course.sectionId));
     }
 
     // Apply sorting
