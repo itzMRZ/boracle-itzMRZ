@@ -423,6 +423,7 @@ const MaterialListTableView = ({
                                                             className="w-8 h-8 rounded-full text-gray-500 hover:text-red-600 dark:hover:text-red-400 bg-gray-50 dark:bg-gray-800/50 hover:bg-red-50 dark:hover:bg-red-900/20"
                                                             onClick={() => setSelectedForDelete(material)}
                                                             title="Delete Material"
+                                                            aria-label="Delete Material"
                                                         >
                                                             <Trash2 className="w-4 h-4" />
                                                         </Button>
@@ -433,6 +434,7 @@ const MaterialListTableView = ({
                                                         className="w-8 h-8 rounded-full text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40"
                                                         onClick={() => handleShare(material)}
                                                         title="Share Link"
+                                                        aria-label="Share Link"
                                                     >
                                                         <Share2 className="w-4 h-4" />
                                                     </Button>
