@@ -1188,6 +1188,8 @@ const SavedRoutinesPage = () => {
                 <button
                   onClick={() => deleteRoutine(routine.id)}
                   className="px-3 py-2 hover:bg-red-100 dark:hover:bg-red-700 text-red-600 dark:text-red-400 rounded-lg flex items-center justify-center gap-2 text-sm transition-colors"
+                  title="Delete routine"
+                  aria-label="Delete routine"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
@@ -1375,6 +1377,8 @@ const SavedRoutinesPage = () => {
                     <button
                       onClick={() => deleteMergedRoutine(routine.id)}
                       className="px-3 py-2 hover:bg-red-100 dark:hover:bg-red-700 text-red-600 dark:text-red-400 rounded-lg flex items-center justify-center gap-2 text-sm transition-colors"
+                      title="Delete merged routine"
+                      aria-label="Delete merged routine"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
