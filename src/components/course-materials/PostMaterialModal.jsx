@@ -59,8 +59,9 @@ const PostMaterialModal = ({ onMaterialPosted }) => {
         }
     };
 
+    const lowerCourseSearch = courseSearch ? courseSearch.toLowerCase() : '';
     const filteredCodes = courseSearch
-        ? courseCodes.filter(c => c.toLowerCase().includes(courseSearch.toLowerCase()))
+        ? courseCodes.filter(c => c.toLowerCase().includes(lowerCourseSearch))
         : courseCodes;
 
     const handleFileChange = (e) => {
