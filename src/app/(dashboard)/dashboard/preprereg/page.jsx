@@ -239,10 +239,11 @@ const PreRegistrationPage = () => {
 
     // Apply search
     if (debouncedSearchTerm) {
+      const lowerSearch = debouncedSearchTerm.toLowerCase();
       filtered = filtered.filter(course =>
-        course.courseCode?.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        course.faculties?.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        course.sectionName?.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
+        course.courseCode?.toLowerCase().includes(lowerSearch) ||
+        course.faculties?.toLowerCase().includes(lowerSearch) ||
+        course.sectionName?.toLowerCase().includes(lowerSearch)
       );
     }
 
@@ -254,9 +255,10 @@ const PreRegistrationPage = () => {
     }
 
     if (filters.avoidFaculties.length > 0) {
+      const avoidedFacultiesLower = filters.avoidFaculties.map(f => f.toLowerCase());
       filtered = filtered.filter(course =>
-        !filters.avoidFaculties.some(faculty =>
-          course.faculties?.toLowerCase().includes(faculty.toLowerCase())
+        !avoidedFacultiesLower.some(faculty =>
+          course.faculties?.toLowerCase().includes(faculty)
         )
       );
     }
@@ -268,7 +270,8 @@ const PreRegistrationPage = () => {
     }
 
     if (filters.onlySelected) {
-      filtered = filtered.filter(course => selectedCourses.some(c => c.sectionId === course.sectionId));
+      const selectedSectionIds = new Set(selectedCourses.map(c => c.sectionId));
+      filtered = filtered.filter(course => selectedSectionIds.has(course.sectionId));
     }
 
     // Apply sorting
@@ -1097,8 +1100,9 @@ const PreRegistrationPage = () => {
                         }}
                         onFocus={() => setFacultyDropdownOpen(true)}
                         onKeyDown={(e) => {
+                          const lowerFacultySearch = facultySearch.toLowerCase();
                           const filteredList = cdnFacultyList.filter(initial =>
-                            initial.toLowerCase().includes(facultySearch.toLowerCase())
+                            initial.toLowerCase().includes(lowerFacultySearch)
                           );
 
                           if (e.key === 'ArrowDown') {
@@ -1147,12 +1151,16 @@ const PreRegistrationPage = () => {
                           ref={facultyListRef}
                           className="overflow-y-auto max-h-[320px] faculty-dropdown-scroll"
                         >
-                          {cdnFacultyList
-                            .filter(initial =>
-                              initial.toLowerCase().includes(facultySearch.toLowerCase())
-                            )
-                            .map((initial, index) => {
-                              const isSelected = filters.avoidFaculties.includes(initial);
+                          {(() => {
+                            const lowerFacultySearch = facultySearch.toLowerCase();
+                            const filteredList = cdnFacultyList.filter(initial =>
+                              initial.toLowerCase().includes(lowerFacultySearch)
+                            );
+
+                            return (
+                              <>
+                                {filteredList.map((initial, index) => {
+                                  const isSelected = filters.avoidFaculties.includes(initial);
                               const isHighlighted = index === highlightedIndex;
                               return (
                                 <div
@@ -1181,15 +1189,16 @@ const PreRegistrationPage = () => {
                                     <X className="w-4 h-4 text-white" />
                                   )}
                                 </div>
-                              );
-                            })}
-                          {cdnFacultyList.filter(initial =>
-                            initial.toLowerCase().includes(facultySearch.toLowerCase())
-                          ).length === 0 && (
-                              <div className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400 text-center">
-                                No faculties found
-                              </div>
-                            )}
+                                  );
+                                })}
+                                {filteredList.length === 0 && (
+                                  <div className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400 text-center">
+                                    No faculties found
+                                  </div>
+                                )}
+                              </>
+                            );
+                          })()}
                         </div>
                       </div>
                     )}
