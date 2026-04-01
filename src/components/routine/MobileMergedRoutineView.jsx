@@ -15,23 +15,6 @@ const MobileMergedRoutineView = ({
     const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const dayAbbr = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-    // Default to first day with courses
-    const firstDayWithCourses = useMemo(() => {
-        for (const day of days) {
-            const hasCourse = courses.some(course => {
-                const classMatch = course.sectionSchedule?.classSchedules?.some(s => s.day === day.toUpperCase());
-                const labMatch = course.labSchedules?.some(s => s.day === day.toUpperCase());
-                return classMatch || labMatch;
-            });
-            if (hasCourse) return day;
-        }
-        return 'Sunday';
-    }, [courses]);
-
-    const [selectedDay, setSelectedDay] = useState(firstDayWithCourses);
-    const [bottomSheetCourse, setBottomSheetCourse] = useState(null);
-    const [bottomSheetTitle, setBottomSheetTitle] = useState(null);
-
     const formatTime = (time) => {
         if (!time) return '';
         if (time.includes('AM') || time.includes('PM')) return time;
@@ -52,19 +35,32 @@ const MobileMergedRoutineView = ({
         return totalMinutes;
     };
 
-    // Get courses for the selected day, sorted by time
-    const coursesForDay = useMemo(() => {
-        const result = [];
+    // Pre-process all schedules into a map of day -> array of schedule objects
+    const { coursesByDay, coursesPerDay, firstDayWithCourses } = useMemo(() => {
+        const byDay = {};
+        const counts = {};
+        days.forEach(day => {
+            byDay[day.toUpperCase()] = [];
+            counts[day] = 0;
+        });
+
         const seen = new Set();
 
         courses.forEach(course => {
-            // Class schedules
+            let hasAddedCourseForDay = new Set();
+
+            // Process Class schedules
             course.sectionSchedule?.classSchedules?.forEach(schedule => {
-                if (schedule.day === selectedDay.toUpperCase()) {
-                    const key = `${course.sectionId}-class-${schedule.startTime}`;
+                const dayUpper = schedule.day;
+                if (byDay[dayUpper] !== undefined) {
+                    if (!hasAddedCourseForDay.has(dayUpper)) {
+                        counts[days.find(d => d.toUpperCase() === dayUpper)]++;
+                        hasAddedCourseForDay.add(dayUpper);
+                    }
+                    const key = `${course.sectionId}-class-${schedule.startTime}-${dayUpper}`;
                     if (!seen.has(key)) {
                         seen.add(key);
-                        result.push({
+                        byDay[dayUpper].push({
                             course,
                             type: 'class',
                             startTime: schedule.startTime,
@@ -76,13 +72,18 @@ const MobileMergedRoutineView = ({
                 }
             });
 
-            // Lab schedules
+            // Process Lab schedules
             course.labSchedules?.forEach(schedule => {
-                if (schedule.day === selectedDay.toUpperCase()) {
-                    const key = `${course.sectionId}-lab-${schedule.startTime}`;
+                const dayUpper = schedule.day;
+                if (byDay[dayUpper] !== undefined) {
+                     if (!hasAddedCourseForDay.has(dayUpper)) {
+                        counts[days.find(d => d.toUpperCase() === dayUpper)]++;
+                        hasAddedCourseForDay.add(dayUpper);
+                    }
+                    const key = `${course.sectionId}-lab-${schedule.startTime}-${dayUpper}`;
                     if (!seen.has(key)) {
                         seen.add(key);
-                        result.push({
+                        byDay[dayUpper].push({
                             course,
                             type: 'lab',
                             startTime: schedule.startTime,
@@ -95,48 +96,56 @@ const MobileMergedRoutineView = ({
             });
         });
 
-        // Sort by time
-        result.sort((a, b) => a.sortKey - b.sortKey);
+        let firstDay = null;
 
-        // Detect conflicts and matches
-        for (let i = 0; i < result.length; i++) {
-            const aStart = result[i].sortKey;
-            const aEnd = timeToMinutes(formatTime(result[i].endTime));
-            result[i].hasConflict = false;
-            result[i].hasMatch = false;
+        // Sort each day's schedules and resolve conflicts once
+        days.forEach(day => {
+            const dayUpper = day.toUpperCase();
+            const result = byDay[dayUpper];
+            result.sort((a, b) => a.sortKey - b.sortKey);
 
-            for (let j = 0; j < result.length; j++) {
-                if (i === j) continue;
-                const bStart = result[j].sortKey;
-                const bEnd = timeToMinutes(formatTime(result[j].endTime));
-                if (aStart < bEnd && aEnd > bStart) {
-                    // Overlapping: check if same friend or different friend
-                    if (result[i].course.friendName === result[j].course.friendName) {
-                        result[i].hasConflict = true;
-                    } else {
-                        result[i].hasMatch = true;
+             // Detect conflicts and matches
+            for (let i = 0; i < result.length; i++) {
+                const aStart = result[i].sortKey;
+                const aEnd = timeToMinutes(formatTime(result[i].endTime));
+                result[i].hasConflict = false;
+                result[i].hasMatch = false;
+
+                for (let j = 0; j < result.length; j++) {
+                    if (i === j) continue;
+                    const bStart = result[j].sortKey;
+                    const bEnd = timeToMinutes(formatTime(result[j].endTime));
+                    if (aStart < bEnd && aEnd > bStart) {
+                        // Overlapping: check if same friend or different friend
+                        if (result[i].course.friendName === result[j].course.friendName) {
+                            result[i].hasConflict = true;
+                        } else {
+                            result[i].hasMatch = true;
+                        }
                     }
                 }
             }
-        }
 
-        return result;
-    }, [courses, selectedDay]);
-
-    // Count per day
-    const coursesPerDay = useMemo(() => {
-        const counts = {};
-        days.forEach(day => {
-            let count = 0;
-            courses.forEach(course => {
-                const classMatch = course.sectionSchedule?.classSchedules?.some(s => s.day === day.toUpperCase());
-                const labMatch = course.labSchedules?.some(s => s.day === day.toUpperCase());
-                if (classMatch || labMatch) count++;
-            });
-            counts[day] = count;
+            if (!firstDay && counts[day] > 0) {
+                firstDay = day;
+            }
         });
-        return counts;
+
+        return {
+            coursesByDay: byDay,
+            coursesPerDay: counts,
+            firstDayWithCourses: firstDay || 'Sunday'
+        };
     }, [courses]);
+
+    const [selectedDay, setSelectedDay] = useState(firstDayWithCourses);
+    const [bottomSheetCourse, setBottomSheetCourse] = useState(null);
+    const [bottomSheetTitle, setBottomSheetTitle] = useState(null);
+
+    // Get courses for the selected day, sorted by time
+    const coursesForDay = useMemo(() => {
+        return coursesByDay[selectedDay.toUpperCase()] || [];
+    }, [coursesByDay, selectedDay]);
 
     /**
      * Lighten a hex color for backgrounds.
