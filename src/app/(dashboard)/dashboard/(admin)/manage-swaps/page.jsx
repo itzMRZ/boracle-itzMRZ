@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -63,9 +63,20 @@ const AdminSwapsPageContent = () => {
     }
   }, [session, status]);
 
+  // ⚡ Bolt: Pre-compute a Map for course lookups to eliminate O(N^2) render performance bottleneck
+  const courseMap = useMemo(() => {
+    const map = new Map();
+    courses.forEach(course => {
+      // API can return sectionid or sectionId, use fallback for safety
+      const id = course.sectionid || course.sectionId;
+      map.set(id, course);
+    });
+    return map;
+  }, [courses]);
+
   useEffect(() => {
     filterSwaps();
-  }, [searchQuery, swaps]);
+  }, [searchQuery, swaps, courseMap]);
 
   const fetchSwaps = async () => {
     try {
@@ -116,7 +127,7 @@ const AdminSwapsPageContent = () => {
   };
 
   const getCourseInfo = (sectionId) => {
-    return courses.find(course => course.sectionid === sectionId) || null;
+    return courseMap.get(sectionId) || null;
   };
 
   const formatDate = (timestamp) => {
