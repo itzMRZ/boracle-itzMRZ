@@ -88,6 +88,7 @@ const MaterialCardItem = React.memo(({ m, processing, onApprove, onReject, onSav
                                         onClick={() => setEditing(false)}
                                         className="shrink-0"
                                         disabled={saving}
+                                        aria-label="Cancel editing"
                                     >
                                         <X className="w-4 h-4 text-gray-500" />
                                     </Button>
@@ -105,6 +106,7 @@ const MaterialCardItem = React.memo(({ m, processing, onApprove, onReject, onSav
                                             setEditing(true);
                                             setEditDesc(m.postDescription);
                                         }}
+                                        aria-label="Edit description"
                                     >
                                         <Pencil className="w-3 h-3" />
                                     </Button>
@@ -600,6 +602,7 @@ const AdminMaterialsPageContent = () => {
                                 size="sm"
                                 className="h-7 px-3 text-xs gap-1.5 bg-red-500 hover:bg-red-600 dark:bg-red-500 dark:hover:bg-red-600 !text-white shadow-sm"
                                 onClick={() => setViewerOpen(false)}
+                                aria-label="Close viewer"
                             >
                                 <X className="w-3.5 h-3.5" />
                             </Button>
