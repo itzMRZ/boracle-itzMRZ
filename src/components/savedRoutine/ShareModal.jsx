@@ -36,7 +36,7 @@ const ShareModal = ({ routineId, type = 'routine', onClose }) => {
                             <Share2 className="w-5 h-5 text-blue-500 dark:text-blue-400" />
                             <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Share Routine</h2>
                         </div>
-                        <button onClick={onClose} className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
+                        <button onClick={onClose} aria-label="Close modal" className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
                             <X className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                         </button>
                     </div>
