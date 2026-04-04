@@ -1,0 +1,3 @@
+## 2024-05-18 - Memoizing Grid Lookups to Avoid O(N*M) Renders
+**Learning:** React components that render large grids (like timetables) with nested loops and complex filtering (e.g., using string parsing for `timeToMinutes` inside `.filter` and `.some` array methods) will experience severe UI jank when triggering re-renders on simple interactions like hover.
+**Action:** When determining cell contents in a rendered grid, always pre-calculate static slot mapping and format parsing inside a `useMemo` so mapping operations inside the JSX are simple O(1) Map lookups, preventing expensive N*M calculations during render cycles.

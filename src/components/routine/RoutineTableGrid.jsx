@@ -53,40 +53,81 @@ const RoutineTableGrid = ({
     return `${displayHour}:${minutes} ${ampm}`;
   };
 
-  // Get courses for a specific time slot and day
-  const getCoursesForSlot = (day, timeSlot) => {
-    const [slotStart, slotEnd] = timeSlot.split('-');
-    const slotStartMin = timeToMinutes(slotStart);
-    const slotEndMin = timeToMinutes(slotEnd);
+  // Pre-calculate parsed times for courses
+  const parsedCourses = React.useMemo(() => {
+    return selectedCourses.map(course => {
+      const parsedClassSchedules = (course.sectionSchedule?.classSchedules || []).map(schedule => ({
+        ...schedule,
+        startMin: timeToMinutes(formatTime(schedule.startTime)),
+        endMin: timeToMinutes(formatTime(schedule.endTime))
+      }));
 
-    return selectedCourses.filter(course => {
-      // Check class schedules
-      const classMatch = course.sectionSchedule?.classSchedules?.some(schedule => {
-        if (schedule.day !== day.toUpperCase()) return false;
-        const scheduleStart = timeToMinutes(formatTime(schedule.startTime));
-        const scheduleEnd = timeToMinutes(formatTime(schedule.endTime));
-        // Check if the course time overlaps with the slot time
-        return scheduleStart < slotEndMin && scheduleEnd > slotStartMin;
-      });
+      const parsedLabSchedules = (course.labSchedules || []).map(schedule => ({
+        ...schedule,
+        startMin: timeToMinutes(formatTime(schedule.startTime)),
+        endMin: timeToMinutes(formatTime(schedule.endTime))
+      }));
 
-      // Check lab schedules
-      const labMatch = course.labSchedules?.some(schedule => {
-        if (schedule.day !== day.toUpperCase()) return false;
-        const scheduleStart = timeToMinutes(formatTime(schedule.startTime));
-        const scheduleEnd = timeToMinutes(formatTime(schedule.endTime));
-        // Check if the course time overlaps with the slot time
-        return scheduleStart < slotEndMin && scheduleEnd > slotStartMin;
-      });
-
-      return classMatch || labMatch;
+      return {
+        ...course,
+        parsedClassSchedules,
+        parsedLabSchedules
+      };
     });
-  };
+  }, [selectedCourses]);
 
-  // Check for time conflicts
-  const hasConflict = (day, timeSlot) => {
-    const courses = getCoursesForSlot(day, timeSlot);
-    return courses.length > 1;
-  };
+  // Pre-calculate slot courses and conflicts to avoid O(N*M) lookups on hover
+  const slotData = React.useMemo(() => {
+    const data = new Map();
+
+    days.forEach(day => {
+      REGULAR_TIMINGS.forEach(matchSlot => {
+        const key = `${day}-${matchSlot}`;
+        const [slotStart, slotEnd] = matchSlot.split('-');
+        const slotStartMin = timeToMinutes(slotStart);
+        const slotEndMin = timeToMinutes(slotEnd);
+        const dayUpper = day.toUpperCase();
+
+        const slotCourses = [];
+
+        parsedCourses.forEach(course => {
+          let isLab = false;
+          let isClass = false;
+
+          // Check class schedules
+          for (const schedule of course.parsedClassSchedules) {
+            if (schedule.day === dayUpper && schedule.startMin < slotEndMin && schedule.endMin > slotStartMin) {
+              isClass = true;
+              break;
+            }
+          }
+
+          // Check lab schedules
+          for (const schedule of course.parsedLabSchedules) {
+            if (schedule.day === dayUpper && schedule.startMin < slotEndMin && schedule.endMin > slotStartMin) {
+              isLab = true;
+              break;
+            }
+          }
+
+          if (isClass || isLab) {
+            slotCourses.push({
+              course,
+              isLab
+            });
+          }
+        });
+
+        data.set(key, {
+          courses: slotCourses,
+          conflict: slotCourses.length > 1
+        });
+      });
+    });
+
+    return data;
+  }, [parsedCourses, days]);
+
 
 
   // Prevents flashing desktop view on mobile while measuring
@@ -136,24 +177,14 @@ const RoutineTableGrid = ({
                     {timeSlot}
                   </td>
                   {days.map(day => {
-                    const courses = getCoursesForSlot(day, matchSlot);
-                    const conflict = hasConflict(day, matchSlot);
+                    const cellData = slotData.get(`${day}-${matchSlot}`) || { courses: [], conflict: false };
+                    const { courses: slotCourses, conflict } = cellData;
 
                     return (
                       <td key={`${day}-${timeSlot}`} className="p-2 border-r border-gray-300 dark:border-gray-700 last:border-r-0 relative">
-                        {courses.length > 0 && (
+                        {slotCourses.length > 0 && (
                           <div className={`min-h-[80px] ${conflict ? 'space-y-1' : ''}`}>
-                            {courses.map(course => {
-                              const isLab = course.labSchedules?.some(s => {
-                                if (s.day !== day.toUpperCase()) return false;
-                                const scheduleStart = timeToMinutes(formatTime(s.startTime));
-                                const scheduleEnd = timeToMinutes(formatTime(s.endTime));
-                                const slotStartMin = timeToMinutes(matchSlot.split('-')[0]);
-                                const slotEndMin = timeToMinutes(matchSlot.split('-')[1]);
-                                // Check if the lab time overlaps with the slot time
-                                return scheduleStart < slotEndMin && scheduleEnd > slotStartMin;
-                              });
-
+                            {slotCourses.map(({ course, isLab }) => {
                               return (
                                 <div
                                   key={course.sectionId}
