@@ -239,11 +239,16 @@ const PreRegistrationPage = () => {
 
     // Apply search
     if (debouncedSearchTerm) {
-      filtered = filtered.filter(course =>
-        course.courseCode?.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        course.faculties?.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        course.sectionName?.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
-      );
+      const searchLower = debouncedSearchTerm.toLowerCase();
+      filtered = filtered.filter(course => {
+        const courseCodeLower = course.courseCode?.toLowerCase() || '';
+        const facultiesLower = course.faculties?.toLowerCase() || '';
+        const sectionNameLower = course.sectionName?.toLowerCase() || '';
+
+        return courseCodeLower.includes(searchLower) ||
+               facultiesLower.includes(searchLower) ||
+               sectionNameLower.includes(searchLower);
+      });
     }
 
     // Apply filters
@@ -254,11 +259,11 @@ const PreRegistrationPage = () => {
     }
 
     if (filters.avoidFaculties.length > 0) {
-      filtered = filtered.filter(course =>
-        !filters.avoidFaculties.some(faculty =>
-          course.faculties?.toLowerCase().includes(faculty.toLowerCase())
-        )
-      );
+      const avoidLower = filters.avoidFaculties.map(f => f.toLowerCase());
+      filtered = filtered.filter(course => {
+        const facultiesLower = course.faculties?.toLowerCase() || '';
+        return !avoidLower.some(faculty => facultiesLower.includes(faculty));
+      });
     }
 
     if (filters.labFilter === 'with-lab') {
@@ -1097,8 +1102,9 @@ const PreRegistrationPage = () => {
                         }}
                         onFocus={() => setFacultyDropdownOpen(true)}
                         onKeyDown={(e) => {
+                          const facultySearchLower = facultySearch.toLowerCase();
                           const filteredList = cdnFacultyList.filter(initial =>
-                            initial.toLowerCase().includes(facultySearch.toLowerCase())
+                            initial.toLowerCase().includes(facultySearchLower)
                           );
 
                           if (e.key === 'ArrowDown') {
@@ -1147,11 +1153,15 @@ const PreRegistrationPage = () => {
                           ref={facultyListRef}
                           className="overflow-y-auto max-h-[320px] faculty-dropdown-scroll"
                         >
-                          {cdnFacultyList
-                            .filter(initial =>
-                              initial.toLowerCase().includes(facultySearch.toLowerCase())
-                            )
-                            .map((initial, index) => {
+                          {(() => {
+                            const facultySearchLower = facultySearch.toLowerCase();
+                            const filteredList = cdnFacultyList.filter(initial =>
+                              initial.toLowerCase().includes(facultySearchLower)
+                            );
+
+                            return (
+                              <>
+                                {filteredList.map((initial, index) => {
                               const isSelected = filters.avoidFaculties.includes(initial);
                               const isHighlighted = index === highlightedIndex;
                               return (
@@ -1161,35 +1171,36 @@ const PreRegistrationPage = () => {
                                   className={`flex items-center px-3 py-2.5 cursor-pointer transition-colors ${isHighlighted ? 'bg-blue-600 text-white' : isSelected ? 'bg-blue-300/60 dark:bg-blue-800/40' : 'hover:bg-gray-100 dark:hover:bg-[#1e3a5f]'
                                     }`}
                                   onClick={() => {
-                                    if (isSelected) {
-                                      removeFaculty(initial);
-                                    } else {
-                                      setFilters(prev => ({
-                                        ...prev,
-                                        avoidFaculties: [...prev.avoidFaculties, initial]
-                                      }));
-                                      setFacultySearch('');
-                                      setFacultyDropdownOpen(false);
-                                    }
-                                  }}
-                                  onMouseEnter={() => setHighlightedIndex(index)}
-                                >
-                                  <div className="flex-1">
-                                    <div className="font-medium text-gray-900 dark:text-gray-100 text-sm">{initial}</div>
+                                      if (isSelected) {
+                                        removeFaculty(initial);
+                                      } else {
+                                        setFilters(prev => ({
+                                          ...prev,
+                                          avoidFaculties: [...prev.avoidFaculties, initial]
+                                        }));
+                                        setFacultySearch('');
+                                        setFacultyDropdownOpen(false);
+                                      }
+                                    }}
+                                    onMouseEnter={() => setHighlightedIndex(index)}
+                                  >
+                                    <div className="flex-1">
+                                      <div className="font-medium text-gray-900 dark:text-gray-100 text-sm">{initial}</div>
+                                    </div>
+                                    {isSelected && (
+                                      <X className="w-4 h-4 text-white" />
+                                    )}
                                   </div>
-                                  {isSelected && (
-                                    <X className="w-4 h-4 text-white" />
-                                  )}
-                                </div>
-                              );
-                            })}
-                          {cdnFacultyList.filter(initial =>
-                            initial.toLowerCase().includes(facultySearch.toLowerCase())
-                          ).length === 0 && (
-                              <div className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400 text-center">
-                                No faculties found
-                              </div>
-                            )}
+                                );
+                                })}
+                                {filteredList.length === 0 && (
+                                  <div className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400 text-center">
+                                    No faculties found
+                                  </div>
+                                )}
+                              </>
+                            );
+                          })()}
                         </div>
                       </div>
                     )}

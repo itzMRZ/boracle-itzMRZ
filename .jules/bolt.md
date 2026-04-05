@@ -1,0 +1,3 @@
+## 2024-05-24 - Performance pattern: Hoisting string transformations out of filter loops
+**Learning:** Calling `.toLowerCase()` inside `.filter()` operations over large arrays creates redundant string processing operations, drastically slowing down array iterations. This is an O(N*M) or O(N^2) trap often found in simple client-side search logic.
+**Action:** When filtering or searching, always compute `.toLowerCase()` on the search term outside the `.filter()` loop, or memoize mapped lowercase transformations. This shifts string computation from O(N) down to O(1) inside complex Next.js/React list renderings.
