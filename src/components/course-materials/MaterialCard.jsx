@@ -168,6 +168,7 @@ const MaterialCard = ({ material, isPublic = false, onVote, onDelete }) => {
                                 : 'text-gray-400 hover:text-blue-500 hover:bg-gray-200 dark:hover:bg-gray-700'
                                 } ${(isPublic || material.isOwner) ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                             title={material.isOwner ? "You cannot vote on your own material" : "Upvote"}
+                            aria-label="Upvote"
                         >
                             {voteLoading === 'up' ? <Loader2 className="w-5 h-5 animate-spin" /> : <ArrowBigUp className={`w-5 h-5 ${material.userVote === 1 ? 'fill-current' : ''}`} />}
                         </button>
@@ -184,6 +185,7 @@ const MaterialCard = ({ material, isPublic = false, onVote, onDelete }) => {
                                 : 'text-gray-400 hover:text-red-500 hover:bg-gray-200 dark:hover:bg-gray-700'
                                 } ${(isPublic || material.isOwner) ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                             title={material.isOwner ? "You cannot vote on your own material" : "Downvote"}
+                            aria-label="Downvote"
                         >
                             {voteLoading === 'down' ? <Loader2 className="w-5 h-5 animate-spin" /> : <ArrowBigDown className={`w-5 h-5 ${material.userVote === -1 ? 'fill-current' : ''}`} />}
                         </button>
@@ -221,6 +223,7 @@ const MaterialCard = ({ material, isPublic = false, onVote, onDelete }) => {
                         <button
                             onClick={() => setExpanded(!expanded)}
                             className="text-xs md:text-sm text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 mt-1 flex items-center gap-0.5 font-medium"
+                            aria-expanded={expanded}
                         >
                             {expanded ? <><ChevronUp className="w-3.5 h-3.5" /> Show less</> : <><ChevronDown className="w-3.5 h-3.5" /> Read more</>}
                         </button>
