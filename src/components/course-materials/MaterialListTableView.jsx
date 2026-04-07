@@ -423,6 +423,7 @@ const MaterialListTableView = ({
                                                             className="w-8 h-8 rounded-full text-gray-500 hover:text-red-600 dark:hover:text-red-400 bg-gray-50 dark:bg-gray-800/50 hover:bg-red-50 dark:hover:bg-red-900/20"
                                                             onClick={() => setSelectedForDelete(material)}
                                                             title="Delete Material"
+                                                            aria-label="Delete Material"
                                                         >
                                                             <Trash2 className="w-4 h-4" />
                                                         </Button>
@@ -433,6 +434,7 @@ const MaterialListTableView = ({
                                                         className="w-8 h-8 rounded-full text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40"
                                                         onClick={() => handleShare(material)}
                                                         title="Share Link"
+                                                        aria-label="Share Link"
                                                     >
                                                         <Share2 className="w-4 h-4" />
                                                     </Button>
@@ -445,6 +447,7 @@ const MaterialListTableView = ({
                                                                 className="w-8 h-8 rounded-full text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40"
                                                                 onClick={() => handleDownload(material)}
                                                                 title="Download Material"
+                                                                aria-label="Download Material"
                                                             >
                                                                 <Download className="w-4 h-4" />
                                                             </Button>
@@ -454,6 +457,7 @@ const MaterialListTableView = ({
                                                             size="icon"
                                                             className="w-8 h-8 rounded-full bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 !text-white"
                                                             title={isLink ? 'Open Link' : 'View Material'}
+                                                            aria-label={isLink ? 'Open Link' : 'View Material'}
                                                         >
                                                             {isLink ? <ExternalLink className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                                                         </Button>
@@ -527,6 +531,7 @@ const MaterialListTableView = ({
                                 size="sm"
                                 className="h-7 px-3 text-xs gap-1.5 bg-red-500 hover:bg-red-600 dark:bg-red-500 dark:hover:bg-red-600 !text-white shadow-sm"
                                 onClick={() => setSelectedForView(null)}
+                                aria-label="Close Viewer"
                             >
                                 <X className="w-3.5 h-3.5" />
                             </Button>
