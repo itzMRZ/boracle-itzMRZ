@@ -97,6 +97,12 @@ const PreRegistrationPage = () => {
     return selectedCourses.reduce((sum, course) => sum + (course.courseCredit || 0), 0);
   }, [selectedCourses]);
 
+  // ⚡ Bolt: Cache selected section IDs in a Set for O(1) lookups during render loops
+  // Impact: Eliminates O(N*M) algorithmic bottleneck when checking selected status for hundreds of courses
+  const selectedSectionIds = useMemo(() => {
+    return new Set(selectedCourses.map(course => course.sectionId));
+  }, [selectedCourses]);
+
   // Fetch courses on mount
   useEffect(() => {
     const fetchCourses = async () => {
@@ -239,10 +245,12 @@ const PreRegistrationPage = () => {
 
     // Apply search
     if (debouncedSearchTerm) {
+      // ⚡ Bolt: Extract string transformation outside the loop to avoid redundant recalculations
+      const lowerSearch = debouncedSearchTerm.toLowerCase();
       filtered = filtered.filter(course =>
-        course.courseCode?.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        course.faculties?.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        course.sectionName?.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
+        course.courseCode?.toLowerCase().includes(lowerSearch) ||
+        course.faculties?.toLowerCase().includes(lowerSearch) ||
+        course.sectionName?.toLowerCase().includes(lowerSearch)
       );
     }
 
@@ -827,7 +835,7 @@ const PreRegistrationPage = () => {
           <div className="space-y-3 px-1">
             {displayedCourses.map((course, index) => {
               const isLast = index === displayedCourses.length - 1;
-              const isSelected = !!selectedCourses.find(c => c.sectionId === course.sectionId);
+              const isSelected = selectedSectionIds.has(course.sectionId);
 
               return (
                 <div
@@ -936,7 +944,7 @@ const PreRegistrationPage = () => {
               <tbody>
                 {displayedCourses.map((course, index) => {
                   const isLast = index === displayedCourses.length - 1;
-                  const isSelected = selectedCourses.find(c => c.sectionId === course.sectionId);
+                  const isSelected = selectedSectionIds.has(course.sectionId);
                   const availableSeats = course.capacity - course.consumedSeat;
 
                   return (
@@ -1097,8 +1105,9 @@ const PreRegistrationPage = () => {
                         }}
                         onFocus={() => setFacultyDropdownOpen(true)}
                         onKeyDown={(e) => {
+                          const lowerFacultySearch = facultySearch.toLowerCase();
                           const filteredList = cdnFacultyList.filter(initial =>
-                            initial.toLowerCase().includes(facultySearch.toLowerCase())
+                            initial.toLowerCase().includes(lowerFacultySearch)
                           );
 
                           if (e.key === 'ArrowDown') {
@@ -1147,11 +1156,15 @@ const PreRegistrationPage = () => {
                           ref={facultyListRef}
                           className="overflow-y-auto max-h-[320px] faculty-dropdown-scroll"
                         >
-                          {cdnFacultyList
-                            .filter(initial =>
-                              initial.toLowerCase().includes(facultySearch.toLowerCase())
-                            )
-                            .map((initial, index) => {
+                          {(() => {
+                            const lowerFacultySearch = facultySearch.toLowerCase();
+                            const filteredFaculties = cdnFacultyList.filter(initial =>
+                              initial.toLowerCase().includes(lowerFacultySearch)
+                            );
+
+                            return (
+                              <>
+                                {filteredFaculties.map((initial, index) => {
                               const isSelected = filters.avoidFaculties.includes(initial);
                               const isHighlighted = index === highlightedIndex;
                               return (
@@ -1182,14 +1195,15 @@ const PreRegistrationPage = () => {
                                   )}
                                 </div>
                               );
-                            })}
-                          {cdnFacultyList.filter(initial =>
-                            initial.toLowerCase().includes(facultySearch.toLowerCase())
-                          ).length === 0 && (
-                              <div className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400 text-center">
-                                No faculties found
-                              </div>
-                            )}
+                                })}
+                                {filteredFaculties.length === 0 && (
+                                  <div className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400 text-center">
+                                    No faculties found
+                                  </div>
+                                )}
+                              </>
+                            );
+                          })()}
                         </div>
                       </div>
                     )}
