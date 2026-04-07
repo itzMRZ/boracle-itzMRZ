@@ -248,6 +248,7 @@ const MobileMaterialCard = ({ material, isPublic = false, onVote, onDelete }) =>
                         className="flex-none h-8 px-2.5 text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 bg-gray-50 dark:bg-gray-800/50 hover:bg-blue-50 dark:hover:bg-blue-900/20"
                         onClick={handleShare}
                         title="Share Link"
+                        aria-label="Share Link"
                     >
                         <Share2 className="w-3.5 h-3.5" />
                     </Button>
@@ -258,6 +259,7 @@ const MobileMaterialCard = ({ material, isPublic = false, onVote, onDelete }) =>
                             onClick={() => setDeleteDialogOpen(true)}
                             disabled={isDeleting}
                             title="Delete Material"
+                            aria-label="Delete Material"
                         >
                             {isDeleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
                         </Button>
@@ -290,6 +292,7 @@ const MobileMaterialCard = ({ material, isPublic = false, onVote, onDelete }) =>
                                 size="sm"
                                 className="h-7 px-3 text-xs gap-1.5 bg-red-500 hover:bg-red-600 dark:bg-red-500 dark:hover:bg-red-600 !text-white shadow-sm"
                                 onClick={() => setViewerOpen(false)}
+                                aria-label="Close Viewer"
                             >
                                 <X className="w-3.5 h-3.5" />
                             </Button>
