@@ -166,6 +166,7 @@ const CourseBottomSheet = ({ course, onClose, courseTitle, extraFields = [] }) =
 
                 {/* Close button */}
                 <button
+                    aria-label="Close"
                     onClick={() => {
                         if (window.history.state?.modalOpen) {
                             window.history.back();
