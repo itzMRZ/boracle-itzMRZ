@@ -239,10 +239,11 @@ const PreRegistrationPage = () => {
 
     // Apply search
     if (debouncedSearchTerm) {
+      const lowerSearchTerm = debouncedSearchTerm.toLowerCase();
       filtered = filtered.filter(course =>
-        course.courseCode?.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        course.faculties?.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        course.sectionName?.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
+        course.courseCode?.toLowerCase().includes(lowerSearchTerm) ||
+        course.faculties?.toLowerCase().includes(lowerSearchTerm) ||
+        course.sectionName?.toLowerCase().includes(lowerSearchTerm)
       );
     }
 
@@ -254,11 +255,14 @@ const PreRegistrationPage = () => {
     }
 
     if (filters.avoidFaculties.length > 0) {
-      filtered = filtered.filter(course =>
-        !filters.avoidFaculties.some(faculty =>
-          course.faculties?.toLowerCase().includes(faculty.toLowerCase())
-        )
-      );
+      const lowerAvoidFaculties = filters.avoidFaculties.map(f => f.toLowerCase());
+      filtered = filtered.filter(course => {
+        const courseFacultiesLower = course.faculties?.toLowerCase();
+        if (!courseFacultiesLower) return true; // keep if no faculties
+        return !lowerAvoidFaculties.some(faculty =>
+          courseFacultiesLower.includes(faculty)
+        );
+      });
     }
 
     if (filters.labFilter === 'with-lab') {
@@ -268,7 +272,8 @@ const PreRegistrationPage = () => {
     }
 
     if (filters.onlySelected) {
-      filtered = filtered.filter(course => selectedCourses.some(c => c.sectionId === course.sectionId));
+      const selectedSectionIds = new Set(selectedCourses.map(c => c.sectionId));
+      filtered = filtered.filter(course => selectedSectionIds.has(course.sectionId));
     }
 
     // Apply sorting
@@ -825,11 +830,13 @@ const PreRegistrationPage = () => {
         ) : isMobile ? (
           /* Mobile: Card layout */
           <div className="space-y-3 px-1">
-            {displayedCourses.map((course, index) => {
-              const isLast = index === displayedCourses.length - 1;
-              const isSelected = !!selectedCourses.find(c => c.sectionId === course.sectionId);
+            {(() => {
+              const selectedSectionIds = new Set(selectedCourses.map(c => c.sectionId));
+              return displayedCourses.map((course, index) => {
+                const isLast = index === displayedCourses.length - 1;
+                const isSelected = selectedSectionIds.has(course.sectionId);
 
-              return (
+                return (
                 <div
                   key={course.sectionId}
                   ref={isLast && displayCount < filteredCourses.length ? lastCourseRef : null}
@@ -854,7 +861,8 @@ const PreRegistrationPage = () => {
                   />
                 </div>
               );
-            })}
+            });
+            })()}
 
             {displayCount < filteredCourses.length && (
               <div className="text-center py-4">
@@ -934,12 +942,14 @@ const PreRegistrationPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {displayedCourses.map((course, index) => {
-                  const isLast = index === displayedCourses.length - 1;
-                  const isSelected = selectedCourses.find(c => c.sectionId === course.sectionId);
-                  const availableSeats = course.capacity - course.consumedSeat;
+                {(() => {
+                  const selectedSectionIds = new Set(selectedCourses.map(c => c.sectionId));
+                  return displayedCourses.map((course, index) => {
+                    const isLast = index === displayedCourses.length - 1;
+                    const isSelected = selectedSectionIds.has(course.sectionId);
+                    const availableSeats = course.capacity - course.consumedSeat;
 
-                  return (
+                    return (
                     <tr
                       key={course.sectionId}
                       ref={isLast && displayCount < filteredCourses.length ? lastCourseRef : null}
@@ -1012,7 +1022,8 @@ const PreRegistrationPage = () => {
                       </td>
                     </tr>
                   );
-                })}
+                });
+                })()}
               </tbody>
             </table>
 
@@ -1097,8 +1108,9 @@ const PreRegistrationPage = () => {
                         }}
                         onFocus={() => setFacultyDropdownOpen(true)}
                         onKeyDown={(e) => {
+                          const lowerFacultySearch = facultySearch.toLowerCase();
                           const filteredList = cdnFacultyList.filter(initial =>
-                            initial.toLowerCase().includes(facultySearch.toLowerCase())
+                            initial.toLowerCase().includes(lowerFacultySearch)
                           );
 
                           if (e.key === 'ArrowDown') {
@@ -1147,11 +1159,15 @@ const PreRegistrationPage = () => {
                           ref={facultyListRef}
                           className="overflow-y-auto max-h-[320px] faculty-dropdown-scroll"
                         >
-                          {cdnFacultyList
-                            .filter(initial =>
-                              initial.toLowerCase().includes(facultySearch.toLowerCase())
-                            )
-                            .map((initial, index) => {
+                          {(() => {
+                            const lowerFacultySearch = facultySearch.toLowerCase();
+                            const filteredList = cdnFacultyList.filter(initial =>
+                              initial.toLowerCase().includes(lowerFacultySearch)
+                            );
+
+                            return (
+                              <>
+                                {filteredList.map((initial, index) => {
                               const isSelected = filters.avoidFaculties.includes(initial);
                               const isHighlighted = index === highlightedIndex;
                               return (
@@ -1183,13 +1199,14 @@ const PreRegistrationPage = () => {
                                 </div>
                               );
                             })}
-                          {cdnFacultyList.filter(initial =>
-                            initial.toLowerCase().includes(facultySearch.toLowerCase())
-                          ).length === 0 && (
+                            {filteredList.length === 0 && (
                               <div className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400 text-center">
                                 No faculties found
                               </div>
                             )}
+                          </>
+                        );
+                      })()}
                         </div>
                       </div>
                     )}
