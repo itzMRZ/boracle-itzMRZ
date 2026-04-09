@@ -1,0 +1,3 @@
+## 2024-05-20 - Array.find() inside loops creates O(N²) bottlenecks in React useMemo
+**Learning:** Using `Array.prototype.find()` or `Array.prototype.some()` inside a `.map`, `.forEach`, or loop to check for existing items (like `!allCourses.find(c => c.sectionId === course.sectionId)`) creates an O(N²) bottleneck. In React components aggregating large datasets (e.g. hundreds or thousands of university courses), this causes noticeable UI jank and long render times inside `useMemo`.
+**Action:** Always pre-compute a `Map` or `Set` for O(1) lookups when deduplicating large arrays to maintain linear O(N) performance.
