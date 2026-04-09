@@ -65,6 +65,7 @@ export default function NavigationBar() {
               <Sheet open={isOpen} onOpenChange={setIsOpen}>
                 <SheetTrigger asChild>
                   <Button
+                    aria-label="Open menu"
                     variant="ghost"
                     size="icon"
                     className="hover:bg-blue-50 dark:hover:bg-blue-900/30"
