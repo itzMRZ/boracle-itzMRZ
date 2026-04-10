@@ -97,6 +97,11 @@ const PreRegistrationPage = () => {
     return selectedCourses.reduce((sum, course) => sum + (course.courseCredit || 0), 0);
   }, [selectedCourses]);
 
+  // O(1) lookup set for selected courses to avoid O(N*M) operations in render loop
+  const selectedSectionIds = useMemo(() => {
+    return new Set(selectedCourses.map(c => c.sectionId));
+  }, [selectedCourses]);
+
   // Fetch courses on mount
   useEffect(() => {
     const fetchCourses = async () => {
@@ -237,12 +242,19 @@ const PreRegistrationPage = () => {
   const filteredCourses = useMemo(() => {
     let filtered = [...courses];
 
+    // Hoist lowercase transformations out of the filter loop to prevent
+    // thousands of redundant string allocations per re-render
+    const lowerSearchTerm = debouncedSearchTerm ? debouncedSearchTerm.toLowerCase() : '';
+    const lowerAvoidFaculties = filters.avoidFaculties.length > 0
+      ? filters.avoidFaculties.map(f => f.toLowerCase())
+      : [];
+
     // Apply search
-    if (debouncedSearchTerm) {
+    if (lowerSearchTerm) {
       filtered = filtered.filter(course =>
-        course.courseCode?.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        course.faculties?.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        course.sectionName?.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
+        course.courseCode?.toLowerCase().includes(lowerSearchTerm) ||
+        course.faculties?.toLowerCase().includes(lowerSearchTerm) ||
+        course.sectionName?.toLowerCase().includes(lowerSearchTerm)
       );
     }
 
@@ -253,12 +265,12 @@ const PreRegistrationPage = () => {
       );
     }
 
-    if (filters.avoidFaculties.length > 0) {
-      filtered = filtered.filter(course =>
-        !filters.avoidFaculties.some(faculty =>
-          course.faculties?.toLowerCase().includes(faculty.toLowerCase())
-        )
-      );
+    if (lowerAvoidFaculties.length > 0) {
+      filtered = filtered.filter(course => {
+        if (!course.faculties) return true;
+        const lowerFaculties = course.faculties.toLowerCase();
+        return !lowerAvoidFaculties.some(faculty => lowerFaculties.includes(faculty));
+      });
     }
 
     if (filters.labFilter === 'with-lab') {
@@ -268,7 +280,7 @@ const PreRegistrationPage = () => {
     }
 
     if (filters.onlySelected) {
-      filtered = filtered.filter(course => selectedCourses.some(c => c.sectionId === course.sectionId));
+      filtered = filtered.filter(course => selectedSectionIds.has(course.sectionId));
     }
 
     // Apply sorting
@@ -306,7 +318,7 @@ const PreRegistrationPage = () => {
     }
 
     return filtered;
-  }, [debouncedSearchTerm, courses, filters, sortConfig, seatAnimations, selectedCourses]);
+  }, [debouncedSearchTerm, courses, filters, sortConfig, seatAnimations, selectedSectionIds]);
 
   const displayedCourses = useMemo(() => {
     return filteredCourses.slice(0, displayCount);
@@ -425,8 +437,8 @@ const PreRegistrationPage = () => {
 
   // Add course to routine
   const addToRoutine = (course) => {
-    const existsBySection = selectedCourses.find(c => c.sectionId === course.sectionId);
-    const existsByCourse = selectedCourses.find(c => c.courseCode === course.courseCode);
+    const existsBySection = selectedSectionIds.has(course.sectionId);
+    const existsByCourse = selectedCourses.some(c => c.courseCode === course.courseCode);
 
     if (existsBySection) {
       // Removing course
@@ -827,7 +839,7 @@ const PreRegistrationPage = () => {
           <div className="space-y-3 px-1">
             {displayedCourses.map((course, index) => {
               const isLast = index === displayedCourses.length - 1;
-              const isSelected = !!selectedCourses.find(c => c.sectionId === course.sectionId);
+              const isSelected = selectedSectionIds.has(course.sectionId);
 
               return (
                 <div
@@ -936,7 +948,7 @@ const PreRegistrationPage = () => {
               <tbody>
                 {displayedCourses.map((course, index) => {
                   const isLast = index === displayedCourses.length - 1;
-                  const isSelected = selectedCourses.find(c => c.sectionId === course.sectionId);
+                  const isSelected = selectedSectionIds.has(course.sectionId);
                   const availableSeats = course.capacity - course.consumedSeat;
 
                   return (

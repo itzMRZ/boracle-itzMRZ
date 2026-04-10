@@ -1,0 +1,3 @@
+## 2024-05-18 - Optimize array operations in React map/filter loops
+**Learning:** Performing `O(N)` operations like `.find()` or `.some()` inside loop bodies like `.map()` or `.filter()` leads to `O(N*M)` time complexity, heavily degrading frontend performance, especially on large datasets. Additionally, redundant string manipulations (e.g. `.toLowerCase()`) in hot paths cause thousands of unnecessary string allocations resulting in garbage collection overhead.
+**Action:** Always precompute `Set` or `Map` data structures using `useMemo` for `O(1)` membership checks prior to list rendering or filtering. Hoist invariant transformations (e.g. string lowercase) out of the loop block.
