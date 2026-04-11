@@ -1,0 +1,4 @@
+
+## 2025-03-09 - [Frontend Performance bottleneck with string conversion and O(N*M) loop inside array filter]
+**Learning:** Found significant frontend array filtering bottlenecks. The `courses` data loaded from `connect.json` is massive. Inside the `filteredCourses` `useMemo`, `toLowerCase()` strings operations on search fields were executed inside the `.filter()` loop, repeating them on every iteration unnecessarily. Even worse, `filters.onlySelected` was using `.some()` inside `.filter()`, causing an O(N*M) performance penalty on rendering the UI list.
+**Action:** Always pre-compute static transformations (like string normalization) and pre-allocate hash-maps or Sets out of `.filter` loops, especially when the underlying dataset sizes can be exceptionally large. Avoid `some()` or `find()` inside array map/filter callbacks.

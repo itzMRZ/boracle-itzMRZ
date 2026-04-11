@@ -239,10 +239,11 @@ const PreRegistrationPage = () => {
 
     // Apply search
     if (debouncedSearchTerm) {
+      const lowerSearchTerm = debouncedSearchTerm.toLowerCase();
       filtered = filtered.filter(course =>
-        course.courseCode?.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        course.faculties?.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        course.sectionName?.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
+        course.courseCode?.toLowerCase().includes(lowerSearchTerm) ||
+        course.faculties?.toLowerCase().includes(lowerSearchTerm) ||
+        course.sectionName?.toLowerCase().includes(lowerSearchTerm)
       );
     }
 
@@ -254,9 +255,10 @@ const PreRegistrationPage = () => {
     }
 
     if (filters.avoidFaculties.length > 0) {
+      const lowerAvoidFaculties = filters.avoidFaculties.map(f => f.toLowerCase());
       filtered = filtered.filter(course =>
-        !filters.avoidFaculties.some(faculty =>
-          course.faculties?.toLowerCase().includes(faculty.toLowerCase())
+        !lowerAvoidFaculties.some(faculty =>
+          course.faculties?.toLowerCase().includes(faculty)
         )
       );
     }
@@ -268,7 +270,8 @@ const PreRegistrationPage = () => {
     }
 
     if (filters.onlySelected) {
-      filtered = filtered.filter(course => selectedCourses.some(c => c.sectionId === course.sectionId));
+      const selectedSectionIds = new Set(selectedCourses.map(c => c.sectionId));
+      filtered = filtered.filter(course => selectedSectionIds.has(course.sectionId));
     }
 
     // Apply sorting
