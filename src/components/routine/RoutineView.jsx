@@ -1,6 +1,6 @@
 'use client';
 import React, { useRef, useState, useEffect } from 'react';
-import { X, Save, Download, Pencil } from 'lucide-react';
+import { X, Save, Download, Pencil, Loader2 } from 'lucide-react';
 import RoutineTableGrid from '@/components/routine/RoutineTableGrid';
 import { exportRoutineToPNG } from '@/components/routine/ExportRoutinePNG';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -151,7 +151,7 @@ const RoutineView = ({
                             disabled={isSaving}
                             className="px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 dark:disabled:bg-gray-600 text-white rounded-lg flex items-center gap-2 transition-colors"
                         >
-                            <Save className="w-4 h-4" />
+                            {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                             {isSaving ? 'Saving...' : 'Save Routine'}
                         </button>
                     )}
@@ -237,7 +237,7 @@ const RoutineView = ({
                                 className="p-2.5 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 dark:disabled:bg-gray-600 text-white rounded-lg transition-colors"
                                 title={isSaving ? 'Saving...' : 'Save Routine'}
                             >
-                                <Save className="w-4 h-4" />
+                                {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                             </button>
                         )}
                         {showExportButton && (
