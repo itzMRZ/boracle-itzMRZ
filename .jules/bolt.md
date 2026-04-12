@@ -1,0 +1,3 @@
+## 2025-04-12 - Prevented O(N*M) bottlenecks during `connect.json` course data filtering
+**Learning:** The course list on BRACU Oracle fetches thousands of courses from a large static `connect.json`. Simple optimizations like redundantly invoking `toLowerCase()` or employing `Array.prototype.some()` inside `.filter()` operations can lead to extreme frontend sluggishness when rendering lists due to O(N^2) or O(N*M) algorithmic complexity.
+**Action:** When filtering massive array data (like courses from `connect.json`), always compute standard transformations (`toLowerCase()`) outside the loop, and use `Set` lookups instead of nested `some()` traversals for matching items.

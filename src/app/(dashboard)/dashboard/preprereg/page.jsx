@@ -239,10 +239,12 @@ const PreRegistrationPage = () => {
 
     // Apply search
     if (debouncedSearchTerm) {
+      // ⚡ Bolt: Hoist toLowerCase() to prevent redundant operations inside filter
+      const searchLower = debouncedSearchTerm.toLowerCase();
       filtered = filtered.filter(course =>
-        course.courseCode?.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        course.faculties?.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        course.sectionName?.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
+        course.courseCode?.toLowerCase().includes(searchLower) ||
+        course.faculties?.toLowerCase().includes(searchLower) ||
+        course.sectionName?.toLowerCase().includes(searchLower)
       );
     }
 
@@ -254,9 +256,11 @@ const PreRegistrationPage = () => {
     }
 
     if (filters.avoidFaculties.length > 0) {
+      // ⚡ Bolt: Pre-calculate lowercase faculties to avoid O(N*M) string allocations
+      const avoidFacultiesLower = filters.avoidFaculties.map(f => f.toLowerCase());
       filtered = filtered.filter(course =>
-        !filters.avoidFaculties.some(faculty =>
-          course.faculties?.toLowerCase().includes(faculty.toLowerCase())
+        !avoidFacultiesLower.some(faculty =>
+          course.faculties?.toLowerCase().includes(faculty)
         )
       );
     }
@@ -268,7 +272,9 @@ const PreRegistrationPage = () => {
     }
 
     if (filters.onlySelected) {
-      filtered = filtered.filter(course => selectedCourses.some(c => c.sectionId === course.sectionId));
+      // ⚡ Bolt: Pre-compute Set of section IDs to replace O(N*M) traversal with O(N) lookup
+      const selectedIds = new Set(selectedCourses.map(c => c.sectionId));
+      filtered = filtered.filter(course => selectedIds.has(course.sectionId));
     }
 
     // Apply sorting
@@ -1097,8 +1103,10 @@ const PreRegistrationPage = () => {
                         }}
                         onFocus={() => setFacultyDropdownOpen(true)}
                         onKeyDown={(e) => {
+                          // ⚡ Bolt: Hoist toLowerCase() to avoid redundant string allocations in large lists
+                          const facultySearchLower = facultySearch.toLowerCase();
                           const filteredList = cdnFacultyList.filter(initial =>
-                            initial.toLowerCase().includes(facultySearch.toLowerCase())
+                            initial.toLowerCase().includes(facultySearchLower)
                           );
 
                           if (e.key === 'ArrowDown') {
@@ -1147,12 +1155,15 @@ const PreRegistrationPage = () => {
                           ref={facultyListRef}
                           className="overflow-y-auto max-h-[320px] faculty-dropdown-scroll"
                         >
-                          {cdnFacultyList
-                            .filter(initial =>
-                              initial.toLowerCase().includes(facultySearch.toLowerCase())
-                            )
-                            .map((initial, index) => {
-                              const isSelected = filters.avoidFaculties.includes(initial);
+                            {/* ⚡ Bolt: Hoist toLowerCase() to prevent redundant operations inside map/filter */}
+                            {(() => {
+                              const facultySearchLower = facultySearch.toLowerCase();
+                              return cdnFacultyList
+                                .filter(initial =>
+                                  initial.toLowerCase().includes(facultySearchLower)
+                                )
+                                .map((initial, index) => {
+                                  const isSelected = filters.avoidFaculties.includes(initial);
                               const isHighlighted = index === highlightedIndex;
                               return (
                                 <div
@@ -1179,17 +1190,23 @@ const PreRegistrationPage = () => {
                                   </div>
                                   {isSelected && (
                                     <X className="w-4 h-4 text-white" />
-                                  )}
-                                </div>
-                              );
-                            })}
-                          {cdnFacultyList.filter(initial =>
-                            initial.toLowerCase().includes(facultySearch.toLowerCase())
-                          ).length === 0 && (
+                                      )}
+                                    </div>
+                                  );
+                                });
+                            })()}
+                            {/* ⚡ Bolt: Use pre-computed lowercase search to check for empty results */}
+                            {(() => {
+                              const facultySearchLower = facultySearch.toLowerCase();
+                              const filteredLength = cdnFacultyList.filter(initial =>
+                                initial.toLowerCase().includes(facultySearchLower)
+                              ).length;
+                              return filteredLength === 0 && (
                               <div className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400 text-center">
                                 No faculties found
                               </div>
-                            )}
+                              );
+                            })()}
                         </div>
                       </div>
                     )}
