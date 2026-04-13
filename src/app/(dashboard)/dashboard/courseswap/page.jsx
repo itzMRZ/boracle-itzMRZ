@@ -220,10 +220,13 @@ const CourseSwapPage = () => {
   // Get all available courses (current + all cached backups) for filtering
   const allAvailableCourses = useMemo(() => {
     const allCourses = [...currentCourses];
+    // Use a Set for O(1) lookups to avoid O(N*M) performance bottleneck
+    const existingSectionIds = new Set(allCourses.map(c => c.sectionId));
     Object.values(semesterCoursesCache).forEach(courses => {
       courses.forEach(course => {
-        if (!allCourses.find(c => c.sectionId === course.sectionId)) {
+        if (!existingSectionIds.has(course.sectionId)) {
           allCourses.push(course);
+          existingSectionIds.add(course.sectionId);
         }
       });
     });
