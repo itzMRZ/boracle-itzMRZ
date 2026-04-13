@@ -465,6 +465,7 @@ const MaterialListTableView = ({
                                             <td className="py-2 px-[2px] align-middle">
                                                 <div className="flex flex-col items-center justify-center gap-0.5 w-10 mx-auto">
                                                     <button
+                                                        aria-label="Upvote"
                                                         onClick={() => !material.isOwner && handleVote(material, 1)}
                                                         disabled={isPublic || voteLoadingId === material.materialId || material.isOwner}
                                                         className={`p-1 rounded transition-colors ${material.userVote === 1
@@ -481,6 +482,7 @@ const MaterialListTableView = ({
                                                         {material.voteCount}
                                                     </span>
                                                     <button
+                                                        aria-label="Downvote"
                                                         onClick={() => !material.isOwner && handleVote(material, -1)}
                                                         disabled={isPublic || voteLoadingId === material.materialId || material.isOwner}
                                                         className={`p-1 rounded transition-colors ${material.userVote === -1

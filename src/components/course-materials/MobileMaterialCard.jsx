@@ -157,6 +157,7 @@ const MobileMaterialCard = ({ material, isPublic = false, onVote, onDelete }) =>
                     {/* Compact Vote Controls */}
                     <div className="flex items-center gap-1 bg-gray-50 dark:bg-gray-900/60 rounded-lg p-0.5 border border-gray-100 dark:border-gray-800 shrink-0">
                         <button
+                            aria-label="Upvote"
                             onClick={() => !material.isOwner && handleVote(1)}
                             disabled={isPublic || voteLoading === 'up' || material.isOwner}
                             className={`p-1 rounded transition-colors ${material.userVote === 1
@@ -173,6 +174,7 @@ const MobileMaterialCard = ({ material, isPublic = false, onVote, onDelete }) =>
                             {material.voteCount}
                         </span>
                         <button
+                            aria-label="Downvote"
                             onClick={() => !material.isOwner && handleVote(-1)}
                             disabled={isPublic || voteLoading === 'down' || material.isOwner}
                             className={`p-1 rounded transition-colors ${material.userVote === -1
