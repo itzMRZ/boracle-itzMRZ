@@ -1,0 +1,1 @@
+## 2025-03-05 - Navbar ARIA Labels\n**Learning:** Routine ARIA additions for standard interactive elements (menus, dropdowns).\n**Action:** Apply `aria-label`, `aria-expanded`, and `aria-haspopup` to interactive navbar elements by default.

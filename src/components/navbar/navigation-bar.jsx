@@ -67,6 +67,7 @@ export default function NavigationBar() {
                   <Button
                     variant="ghost"
                     size="icon"
+                    aria-label="Open main menu"
                     className="hover:bg-blue-50 dark:hover:bg-blue-900/30"
                   >
                     <Menu className="h-5 w-5 text-gray-700 dark:text-gray-200" />
@@ -147,6 +148,8 @@ export default function NavigationBar() {
             <div className="relative" ref={toolsDropdownRef}>
               <button
                 onClick={() => setToolsOpen(!toolsOpen)}
+                aria-expanded={toolsOpen}
+                aria-haspopup="true"
                 className="flex items-center gap-1 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-all duration-200"
               >
                 Tools
