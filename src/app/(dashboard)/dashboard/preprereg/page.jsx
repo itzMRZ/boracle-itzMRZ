@@ -239,10 +239,11 @@ const PreRegistrationPage = () => {
 
     // Apply search
     if (debouncedSearchTerm) {
+      const lowerSearch = debouncedSearchTerm.toLowerCase();
       filtered = filtered.filter(course =>
-        course.courseCode?.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        course.faculties?.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        course.sectionName?.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
+        course.courseCode?.toLowerCase().includes(lowerSearch) ||
+        course.faculties?.toLowerCase().includes(lowerSearch) ||
+        course.sectionName?.toLowerCase().includes(lowerSearch)
       );
     }
 
@@ -254,11 +255,12 @@ const PreRegistrationPage = () => {
     }
 
     if (filters.avoidFaculties.length > 0) {
-      filtered = filtered.filter(course =>
-        !filters.avoidFaculties.some(faculty =>
-          course.faculties?.toLowerCase().includes(faculty.toLowerCase())
-        )
-      );
+      const lowerFaculties = filters.avoidFaculties.map(f => f.toLowerCase());
+      filtered = filtered.filter(course => {
+        const courseFacultiesLower = course.faculties?.toLowerCase();
+        if (!courseFacultiesLower) return true;
+        return !lowerFaculties.some(faculty => courseFacultiesLower.includes(faculty));
+      });
     }
 
     if (filters.labFilter === 'with-lab') {
@@ -268,7 +270,8 @@ const PreRegistrationPage = () => {
     }
 
     if (filters.onlySelected) {
-      filtered = filtered.filter(course => selectedCourses.some(c => c.sectionId === course.sectionId));
+      const selectedSectionIds = new Set(selectedCourses.map(c => c.sectionId));
+      filtered = filtered.filter(course => selectedSectionIds.has(course.sectionId));
     }
 
     // Apply sorting
@@ -825,12 +828,14 @@ const PreRegistrationPage = () => {
         ) : isMobile ? (
           /* Mobile: Card layout */
           <div className="space-y-3 px-1">
-            {displayedCourses.map((course, index) => {
-              const isLast = index === displayedCourses.length - 1;
-              const isSelected = !!selectedCourses.find(c => c.sectionId === course.sectionId);
+            {(() => {
+              const selectedSectionIds = new Set(selectedCourses.map(c => c.sectionId));
+              return displayedCourses.map((course, index) => {
+                const isLast = index === displayedCourses.length - 1;
+                const isSelected = selectedSectionIds.has(course.sectionId);
 
-              return (
-                <div
+                return (
+                  <div
                   key={course.sectionId}
                   ref={isLast && displayCount < filteredCourses.length ? lastCourseRef : null}
                 >
@@ -853,8 +858,9 @@ const PreRegistrationPage = () => {
                     formatSchedule={formatSchedule}
                   />
                 </div>
-              );
-            })}
+                );
+              });
+            })()}
 
             {displayCount < filteredCourses.length && (
               <div className="text-center py-4">
@@ -934,13 +940,15 @@ const PreRegistrationPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {displayedCourses.map((course, index) => {
-                  const isLast = index === displayedCourses.length - 1;
-                  const isSelected = selectedCourses.find(c => c.sectionId === course.sectionId);
-                  const availableSeats = course.capacity - course.consumedSeat;
+                {(() => {
+                  const selectedSectionIds = new Set(selectedCourses.map(c => c.sectionId));
+                  return displayedCourses.map((course, index) => {
+                    const isLast = index === displayedCourses.length - 1;
+                    const isSelected = selectedSectionIds.has(course.sectionId);
+                    const availableSeats = course.capacity - course.consumedSeat;
 
-                  return (
-                    <tr
+                    return (
+                      <tr
                       key={course.sectionId}
                       ref={isLast && displayCount < filteredCourses.length ? lastCourseRef : null}
                       className={`
@@ -1011,8 +1019,9 @@ const PreRegistrationPage = () => {
                         </button>
                       </td>
                     </tr>
-                  );
-                })}
+                    );
+                  });
+                })()}
               </tbody>
             </table>
 
