@@ -1,0 +1,3 @@
+## 2024-05-14 - Missing ARIA labels on common icon buttons
+**Learning:** Found several missing ARIA labels on icon-only buttons like `<X>` and `<Pencil>` across multiple components in `src/components/routine/`. While fixing them is routine work, the recurring pattern indicates a need to consistently apply accessibility practices to basic interactive elements within the routine builder.
+**Action:** When creating new components with icon-only buttons (like delete, close, or edit actions), always ensure they have descriptive `aria-label`s right from the start to improve screen reader accessibility.
