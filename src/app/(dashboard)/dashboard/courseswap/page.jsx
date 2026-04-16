@@ -219,14 +219,29 @@ const CourseSwapPage = () => {
 
   // Get all available courses (current + all cached backups) for filtering
   const allAvailableCourses = useMemo(() => {
+    // ⚡ Bolt: Replaced O(N^2) Array.find with O(N) Set for faster deduplication of large course arrays
     const allCourses = [...currentCourses];
+    const knownIds = new Set();
+
+    // Track IDs of current courses
+    currentCourses.forEach(course => {
+      const sectionId = course.sectionId || course.sectionid;
+      if (sectionId) knownIds.add(sectionId);
+    });
+
+    // Add backup courses, avoiding duplicates
     Object.values(semesterCoursesCache).forEach(courses => {
       courses.forEach(course => {
-        if (!allCourses.find(c => c.sectionId === course.sectionId)) {
+        const sectionId = course.sectionId || course.sectionid;
+        if (sectionId && !knownIds.has(sectionId)) {
+          knownIds.add(sectionId);
           allCourses.push(course);
+        } else if (!sectionId) {
+            allCourses.push(course);
         }
       });
     });
+
     // Enrich with faculty details
     return enrichCoursesWithFaculty(allCourses);
   }, [currentCourses, semesterCoursesCache, enrichCoursesWithFaculty]);
