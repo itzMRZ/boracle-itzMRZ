@@ -184,6 +184,7 @@ const RoutineView = ({
                         <button
                             onClick={handleClose}
                             className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-gray-600 dark:text-gray-300"
+                            aria-label="Close"
                         >
                             <X className="w-5 h-5" />
                         </button>
@@ -256,6 +257,7 @@ const RoutineView = ({
                                 onClick={onEdit}
                                 className="p-2.5 hover:bg-blue-100 dark:hover:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg transition-colors border border-blue-200 dark:border-blue-800"
                                 title="Edit Routine"
+                                aria-label="Edit"
                             >
                                 <Pencil className="w-4 h-4" />
                             </button>
@@ -265,6 +267,7 @@ const RoutineView = ({
                         <button
                             onClick={handleClose}
                             className="p-2.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-gray-600 dark:text-gray-300"
+                            aria-label="Close"
                         >
                             <X className="w-5 h-5" />
                         </button>
