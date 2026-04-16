@@ -1,0 +1,3 @@
+## 2024-05-19 - Optimize Course Deduplication (allAvailableCourses)
+**Learning:** Deduplicating large course arrays (like those from an external CDN containing thousands of sections) using `Array.prototype.find()` inside a loop or `.map`/`.reduce` results in an O(N^2) bottleneck. This causes noticeable UI jank and severe performance degradation on the frontend.
+**Action:** When merging or deduplicating large collections of courses across current and backup datasets, always use a `Map` (or `Set`) keyed by the unique identifier (`course.sectionId || course.sectionid`) for O(1) lookups to maintain linear O(N) performance.
