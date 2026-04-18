@@ -239,10 +239,11 @@ const PreRegistrationPage = () => {
 
     // Apply search
     if (debouncedSearchTerm) {
+      const lowerSearch = debouncedSearchTerm.toLowerCase();
       filtered = filtered.filter(course =>
-        course.courseCode?.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        course.faculties?.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        course.sectionName?.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
+        course.courseCode?.toLowerCase().includes(lowerSearch) ||
+        course.faculties?.toLowerCase().includes(lowerSearch) ||
+        course.sectionName?.toLowerCase().includes(lowerSearch)
       );
     }
 
@@ -254,9 +255,10 @@ const PreRegistrationPage = () => {
     }
 
     if (filters.avoidFaculties.length > 0) {
+      const avoidFacultiesLower = filters.avoidFaculties.map(f => f.toLowerCase());
       filtered = filtered.filter(course =>
-        !filters.avoidFaculties.some(faculty =>
-          course.faculties?.toLowerCase().includes(faculty.toLowerCase())
+        !avoidFacultiesLower.some(faculty =>
+          course.faculties?.toLowerCase().includes(faculty)
         )
       );
     }
@@ -268,7 +270,8 @@ const PreRegistrationPage = () => {
     }
 
     if (filters.onlySelected) {
-      filtered = filtered.filter(course => selectedCourses.some(c => c.sectionId === course.sectionId));
+      const selectedCourseIds = new Set(selectedCourses.map(c => c.sectionId));
+      filtered = filtered.filter(course => selectedCourseIds.has(course.sectionId));
     }
 
     // Apply sorting
@@ -1097,8 +1100,9 @@ const PreRegistrationPage = () => {
                         }}
                         onFocus={() => setFacultyDropdownOpen(true)}
                         onKeyDown={(e) => {
+                          const lowerFacultySearch = facultySearch.toLowerCase();
                           const filteredList = cdnFacultyList.filter(initial =>
-                            initial.toLowerCase().includes(facultySearch.toLowerCase())
+                            initial.toLowerCase().includes(lowerFacultySearch)
                           );
 
                           if (e.key === 'ArrowDown') {
@@ -1147,49 +1151,52 @@ const PreRegistrationPage = () => {
                           ref={facultyListRef}
                           className="overflow-y-auto max-h-[320px] faculty-dropdown-scroll"
                         >
-                          {cdnFacultyList
-                            .filter(initial =>
-                              initial.toLowerCase().includes(facultySearch.toLowerCase())
-                            )
-                            .map((initial, index) => {
-                              const isSelected = filters.avoidFaculties.includes(initial);
-                              const isHighlighted = index === highlightedIndex;
-                              return (
-                                <div
-                                  key={initial}
-                                  data-index={index}
-                                  className={`flex items-center px-3 py-2.5 cursor-pointer transition-colors ${isHighlighted ? 'bg-blue-600 text-white' : isSelected ? 'bg-blue-300/60 dark:bg-blue-800/40' : 'hover:bg-gray-100 dark:hover:bg-[#1e3a5f]'
-                                    }`}
-                                  onClick={() => {
-                                    if (isSelected) {
-                                      removeFaculty(initial);
-                                    } else {
-                                      setFilters(prev => ({
-                                        ...prev,
-                                        avoidFaculties: [...prev.avoidFaculties, initial]
-                                      }));
-                                      setFacultySearch('');
-                                      setFacultyDropdownOpen(false);
-                                    }
-                                  }}
-                                  onMouseEnter={() => setHighlightedIndex(index)}
-                                >
-                                  <div className="flex-1">
-                                    <div className="font-medium text-gray-900 dark:text-gray-100 text-sm">{initial}</div>
+                          {(() => {
+                            const lowerFacultySearch = facultySearch.toLowerCase();
+                            return cdnFacultyList
+                              .filter((initial) => initial.toLowerCase().includes(lowerFacultySearch))
+                              .map((initial, index) => {
+                                const isSelected = filters.avoidFaculties.includes(initial);
+                                const isHighlighted = index === highlightedIndex;
+                                return (
+                                  <div
+                                    key={initial}
+                                    data-index={index}
+                                    className={`flex items-center px-3 py-2.5 cursor-pointer transition-colors ${isHighlighted ? 'bg-blue-600 text-white' : isSelected ? 'bg-blue-300/60 dark:bg-blue-800/40' : 'hover:bg-gray-100 dark:hover:bg-[#1e3a5f]'
+                                      }`}
+                                    onClick={() => {
+                                      if (isSelected) {
+                                        removeFaculty(initial);
+                                      } else {
+                                        setFilters(prev => ({
+                                          ...prev,
+                                          avoidFaculties: [...prev.avoidFaculties, initial]
+                                        }));
+                                        setFacultySearch('');
+                                        setFacultyDropdownOpen(false);
+                                      }
+                                    }}
+                                    onMouseEnter={() => setHighlightedIndex(index)}
+                                  >
+                                    <div className="flex-1">
+                                      <div className="font-medium text-gray-900 dark:text-gray-100 text-sm">{initial}</div>
+                                    </div>
+                                    {isSelected && (
+                                      <X className="w-4 h-4 text-white" />
+                                    )}
                                   </div>
-                                  {isSelected && (
-                                    <X className="w-4 h-4 text-white" />
-                                  )}
-                                </div>
-                              );
-                            })}
-                          {cdnFacultyList.filter(initial =>
-                            initial.toLowerCase().includes(facultySearch.toLowerCase())
-                          ).length === 0 && (
+                                );
+                              });
+                          })()}
+                          {(() => {
+                            const lowerFacultySearch = facultySearch.toLowerCase();
+                            const isEmpty = cdnFacultyList.filter((initial) => initial.toLowerCase().includes(lowerFacultySearch)).length === 0;
+                            return isEmpty ? (
                               <div className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400 text-center">
                                 No faculties found
                               </div>
-                            )}
+                            ) : null;
+                          })()}
                         </div>
                       </div>
                     )}
