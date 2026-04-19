@@ -291,6 +291,7 @@ const MaterialCard = ({ material, isPublic = false, onVote, onDelete }) => {
                                 <Download className="w-3.5 h-3.5" /> Download
                             </Button>
                             <Button
+                                aria-label="Close"
                                 size="sm"
                                 className="h-7 px-3 text-xs gap-1.5 bg-red-500 hover:bg-red-600 dark:bg-red-500 dark:hover:bg-red-600 !text-white shadow-sm"
                                 onClick={() => setViewerOpen(false)}
