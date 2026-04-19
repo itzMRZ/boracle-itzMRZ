@@ -233,16 +233,21 @@ const PreRegistrationPage = () => {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
+  const selectedSectionIds = useMemo(() => {
+    return new Set(selectedCourses.map(c => c.sectionId));
+  }, [selectedCourses]);
+
   // Apply filters and search
   const filteredCourses = useMemo(() => {
     let filtered = [...courses];
 
     // Apply search
     if (debouncedSearchTerm) {
+      const searchTermLower = debouncedSearchTerm.toLowerCase();
       filtered = filtered.filter(course =>
-        course.courseCode?.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        course.faculties?.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        course.sectionName?.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
+        course.courseCode?.toLowerCase().includes(searchTermLower) ||
+        course.faculties?.toLowerCase().includes(searchTermLower) ||
+        course.sectionName?.toLowerCase().includes(searchTermLower)
       );
     }
 
@@ -254,9 +259,10 @@ const PreRegistrationPage = () => {
     }
 
     if (filters.avoidFaculties.length > 0) {
+      const avoidFacultiesLower = filters.avoidFaculties.map(f => f.toLowerCase());
       filtered = filtered.filter(course =>
-        !filters.avoidFaculties.some(faculty =>
-          course.faculties?.toLowerCase().includes(faculty.toLowerCase())
+        !avoidFacultiesLower.some(facultyLower =>
+          course.faculties?.toLowerCase().includes(facultyLower)
         )
       );
     }
@@ -268,7 +274,7 @@ const PreRegistrationPage = () => {
     }
 
     if (filters.onlySelected) {
-      filtered = filtered.filter(course => selectedCourses.some(c => c.sectionId === course.sectionId));
+      filtered = filtered.filter(course => selectedSectionIds.has(course.sectionId));
     }
 
     // Apply sorting
@@ -306,7 +312,7 @@ const PreRegistrationPage = () => {
     }
 
     return filtered;
-  }, [debouncedSearchTerm, courses, filters, sortConfig, seatAnimations, selectedCourses]);
+  }, [debouncedSearchTerm, courses, filters, sortConfig, seatAnimations, selectedSectionIds]);
 
   const displayedCourses = useMemo(() => {
     return filteredCourses.slice(0, displayCount);
@@ -827,7 +833,7 @@ const PreRegistrationPage = () => {
           <div className="space-y-3 px-1">
             {displayedCourses.map((course, index) => {
               const isLast = index === displayedCourses.length - 1;
-              const isSelected = !!selectedCourses.find(c => c.sectionId === course.sectionId);
+              const isSelected = selectedSectionIds.has(course.sectionId);
 
               return (
                 <div
@@ -936,7 +942,7 @@ const PreRegistrationPage = () => {
               <tbody>
                 {displayedCourses.map((course, index) => {
                   const isLast = index === displayedCourses.length - 1;
-                  const isSelected = selectedCourses.find(c => c.sectionId === course.sectionId);
+                  const isSelected = selectedSectionIds.has(course.sectionId);
                   const availableSeats = course.capacity - course.consumedSeat;
 
                   return (
