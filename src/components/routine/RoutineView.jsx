@@ -183,6 +183,7 @@ const RoutineView = ({
                     {onClose && (
                         <button
                             onClick={handleClose}
+                            aria-label="Close"
                             className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-gray-600 dark:text-gray-300"
                         >
                             <X className="w-5 h-5" />
@@ -264,6 +265,7 @@ const RoutineView = ({
 
                         <button
                             onClick={handleClose}
+                            aria-label="Close"
                             className="p-2.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-gray-600 dark:text-gray-300"
                         >
                             <X className="w-5 h-5" />
