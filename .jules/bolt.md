@@ -1,0 +1,3 @@
+## 2024-05-13 - [Pre-reg Course Search Optimization]
+**Learning:** The pre-reg page filters thousands of courses based on search terms. By computing `debouncedSearchTerm.toLowerCase()` inside the `filter` loop, it performs thousands of redundant string allocations and transformations, which is exactly the O(N*M) frontend bottleneck warned about in the memories. Precomputing the search term and the avoid faculties filters outside the loop will provide an immediate O(1) string check for O(N) items.
+**Action:** Extract string transformations (like `.toLowerCase()`) outside of `.filter()` and `.map()` iterations, especially for large arrays like course data. Also, use O(1) structures like Sets for filtering when possible.
