@@ -97,6 +97,11 @@ const PreRegistrationPage = () => {
     return selectedCourses.reduce((sum, course) => sum + (course.courseCredit || 0), 0);
   }, [selectedCourses]);
 
+  // ⚡ Bolt Optimization: Use a Set for O(1) lookups instead of .find() / .some()
+  const selectedSectionIds = useMemo(() => {
+    return new Set(selectedCourses.map(c => c.sectionId));
+  }, [selectedCourses]);
+
   // Fetch courses on mount
   useEffect(() => {
     const fetchCourses = async () => {
@@ -239,10 +244,12 @@ const PreRegistrationPage = () => {
 
     // Apply search
     if (debouncedSearchTerm) {
+      // ⚡ Bolt Optimization: Precompute string transformation before loops
+      const term = debouncedSearchTerm.toLowerCase();
       filtered = filtered.filter(course =>
-        course.courseCode?.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        course.faculties?.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        course.sectionName?.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
+        course.courseCode?.toLowerCase().includes(term) ||
+        course.faculties?.toLowerCase().includes(term) ||
+        course.sectionName?.toLowerCase().includes(term)
       );
     }
 
@@ -254,10 +261,10 @@ const PreRegistrationPage = () => {
     }
 
     if (filters.avoidFaculties.length > 0) {
+      // ⚡ Bolt Optimization: Precompute avoided faculty string transformations before the loop
+      const avoided = filters.avoidFaculties.map(f => f.toLowerCase());
       filtered = filtered.filter(course =>
-        !filters.avoidFaculties.some(faculty =>
-          course.faculties?.toLowerCase().includes(faculty.toLowerCase())
-        )
+        !avoided.some(faculty => course.faculties?.toLowerCase().includes(faculty))
       );
     }
 
@@ -268,7 +275,8 @@ const PreRegistrationPage = () => {
     }
 
     if (filters.onlySelected) {
-      filtered = filtered.filter(course => selectedCourses.some(c => c.sectionId === course.sectionId));
+      // ⚡ Bolt Optimization: Replace selectedCourses.some with O(1) Set lookup
+      filtered = filtered.filter(course => selectedSectionIds.has(course.sectionId));
     }
 
     // Apply sorting
@@ -827,7 +835,8 @@ const PreRegistrationPage = () => {
           <div className="space-y-3 px-1">
             {displayedCourses.map((course, index) => {
               const isLast = index === displayedCourses.length - 1;
-              const isSelected = !!selectedCourses.find(c => c.sectionId === course.sectionId);
+              // ⚡ Bolt Optimization: Replace selectedCourses.find with O(1) Set lookup
+              const isSelected = selectedSectionIds.has(course.sectionId);
 
               return (
                 <div
@@ -936,7 +945,8 @@ const PreRegistrationPage = () => {
               <tbody>
                 {displayedCourses.map((course, index) => {
                   const isLast = index === displayedCourses.length - 1;
-                  const isSelected = selectedCourses.find(c => c.sectionId === course.sectionId);
+                  // ⚡ Bolt Optimization: Replace selectedCourses.find with O(1) Set lookup
+                  const isSelected = selectedSectionIds.has(course.sectionId);
                   const availableSeats = course.capacity - course.consumedSeat;
 
                   return (
