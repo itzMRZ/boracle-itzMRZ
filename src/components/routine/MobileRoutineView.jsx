@@ -235,6 +235,7 @@ const MobileRoutineView = ({
                                                 onRemoveCourse(course);
                                             }}
                                             className="ml-2 p-2 rounded-full bg-red-100 dark:bg-red-900/30 hover:bg-red-200 dark:hover:bg-red-800/40 transition-colors flex-shrink-0"
+                                            aria-label={`Remove ${course.courseCode} from routine`}
                                         >
                                             <X className="w-4 h-4 text-red-500 dark:text-red-400" />
                                         </button>
