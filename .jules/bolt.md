@@ -1,0 +1,3 @@
+## 2024-05-18 - Optimize nested array loops and redundant string operations
+**Learning:** During array rendering or filtering involving thousands of items (e.g. course data), running `Array.prototype.some()` or `Array.prototype.find()` inside the iteration callback creates an N*M bottleneck, causing UI jank on search and filtering. Similarly, computing string transformations like `.toLowerCase()` on the search term inside the array loop results in thousands of redundant string allocations.
+**Action:** Always precompute string transformations like `.toLowerCase()` outside the loop. Use `useMemo` to precompute a `Set` or `Map` of selected item IDs to convert N*M bottlenecks into O(N) operations using O(1) `.has()` lookups.
