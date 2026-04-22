@@ -1,6 +1,6 @@
 'use client';
 import React, { useRef, useState, useEffect } from 'react';
-import { X, Save, Download, Pencil } from 'lucide-react';
+import { X, Save, Download, Pencil, Loader2 } from 'lucide-react';
 import RoutineTableGrid from '@/components/routine/RoutineTableGrid';
 import { exportRoutineToPNG } from '@/components/routine/ExportRoutinePNG';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -149,9 +149,9 @@ const RoutineView = ({
                         <button
                             onClick={onSave}
                             disabled={isSaving}
-                            className="px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 dark:disabled:bg-gray-600 text-white rounded-lg flex items-center gap-2 transition-colors"
+                            className="px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 dark:disabled:bg-gray-600 text-white rounded-lg flex items-center gap-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
                         >
-                            <Save className="w-4 h-4" />
+                            {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                             {isSaving ? 'Saving...' : 'Save Routine'}
                         </button>
                     )}
@@ -183,7 +183,8 @@ const RoutineView = ({
                     {onClose && (
                         <button
                             onClick={handleClose}
-                            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-gray-600 dark:text-gray-300"
+                            aria-label="Close"
+                            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-gray-600 dark:text-gray-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
                         >
                             <X className="w-5 h-5" />
                         </button>
@@ -234,17 +235,19 @@ const RoutineView = ({
                             <button
                                 onClick={onSave}
                                 disabled={isSaving}
-                                className="p-2.5 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 dark:disabled:bg-gray-600 text-white rounded-lg transition-colors"
+                                aria-label="Save Routine"
+                                className="p-2.5 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 dark:disabled:bg-gray-600 text-white rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
                                 title={isSaving ? 'Saving...' : 'Save Routine'}
                             >
-                                <Save className="w-4 h-4" />
+                                {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                             </button>
                         )}
                         {showExportButton && (
                             <button
                                 onClick={handleExport}
                                 disabled={courses.length === 0}
-                                className="p-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-lg transition-colors"
+                                aria-label="Save as PNG"
+                                className="p-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
                                 title="Save as PNG"
                             >
                                 <Download className="w-4 h-4" />
@@ -254,7 +257,8 @@ const RoutineView = ({
                         {onEdit && (
                             <button
                                 onClick={onEdit}
-                                className="p-2.5 hover:bg-blue-100 dark:hover:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg transition-colors border border-blue-200 dark:border-blue-800"
+                                aria-label="Edit Routine"
+                                className="p-2.5 hover:bg-blue-100 dark:hover:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg transition-colors border border-blue-200 dark:border-blue-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
                                 title="Edit Routine"
                             >
                                 <Pencil className="w-4 h-4" />
@@ -264,7 +268,8 @@ const RoutineView = ({
 
                         <button
                             onClick={handleClose}
-                            className="p-2.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-gray-600 dark:text-gray-300"
+                            aria-label="Close"
+                            className="p-2.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-gray-600 dark:text-gray-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
                         >
                             <X className="w-5 h-5" />
                         </button>
