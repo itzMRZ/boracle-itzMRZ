@@ -5,31 +5,36 @@ import { Input } from "@/components/ui/input";
 import { Check, ChevronsUpDown, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+const formatCourse = (course) => {
+  return `${course.courseCode}-[${course.sectionName}]`;
+};
+
 const MultiCourseSelector = ({ label, courses = [], values = [], onChange, placeholder, excludeSectionId }) => {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const dropdownRef = useRef(null);
 
-  const formatCourse = (course) => {
-    return `${course.courseCode}-[${course.sectionName}]`;
-  };
-
   // Filter out the excluded section (the one being offered)
-  const availableCourses = excludeSectionId
-    ? courses.filter(c => c.sectionId?.toString() !== excludeSectionId)
-    : courses;
+  // ⚡ Bolt Optimization: Memoize the available courses derived state
+  const availableCourses = React.useMemo(() => {
+    return excludeSectionId
+      ? courses.filter(c => c.sectionId?.toString() !== excludeSectionId)
+      : courses;
+  }, [courses, excludeSectionId]);
 
-  const filterCourses = (searchTerm) => {
+  // ⚡ Bolt Optimization: Memoize search filter results and extract `.toLowerCase()`
+  // outside the filter loop to prevent O(N) string conversions per keystroke re-render.
+  const filteredCourses = React.useMemo(() => {
     if (!availableCourses || availableCourses.length === 0) return [];
-    if (!searchTerm) return availableCourses.slice(0, 50);
+    if (!search) return availableCourses.slice(0, 50);
 
-    const search = searchTerm.toLowerCase();
+    const searchLower = search.toLowerCase();
     return availableCourses.filter(course =>
-      course.courseCode?.toLowerCase().includes(search) ||
-      course.sectionName?.toLowerCase().includes(search) ||
-      formatCourse(course).toLowerCase().includes(search)
+      course.courseCode?.toLowerCase().includes(searchLower) ||
+      course.sectionName?.toLowerCase().includes(searchLower) ||
+      formatCourse(course).toLowerCase().includes(searchLower)
     ).slice(0, 50);
-  };
+  }, [availableCourses, search]);
 
   const toggleSection = (sectionId) => {
     if (values.includes(sectionId)) {
@@ -42,8 +47,6 @@ const MultiCourseSelector = ({ label, courses = [], values = [], onChange, place
   const getCourseBySection = (sectionId) => {
     return courses.find(c => c.sectionId?.toString() === sectionId);
   };
-
-  const filteredCourses = filterCourses(search);
 
   useEffect(() => {
     const handleClickOutside = (event) => {

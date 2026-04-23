@@ -59,9 +59,13 @@ const PostMaterialModal = ({ onMaterialPosted }) => {
         }
     };
 
-    const filteredCodes = courseSearch
-        ? courseCodes.filter(c => c.toLowerCase().includes(courseSearch.toLowerCase()))
-        : courseCodes;
+    // ⚡ Bolt Optimization: Memoize the filtered array and extract `.toLowerCase()`
+    // outside the filter loop to prevent O(N) string conversions per keystroke re-render.
+    const filteredCodes = React.useMemo(() => {
+        if (!courseSearch) return courseCodes;
+        const searchLower = courseSearch.toLowerCase();
+        return courseCodes.filter(c => c.toLowerCase().includes(searchLower));
+    }, [courseSearch, courseCodes]);
 
     const handleFileChange = (e) => {
         const selected = e.target.files?.[0];

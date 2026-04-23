@@ -5,29 +5,32 @@ import { Input } from "@/components/ui/input";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+const formatCourse = (course) => {
+  return `${course.courseCode}-[${course.sectionName}]`;
+};
+
 const CourseSelector = ({ label, courses = [], value, onChange, placeholder }) => {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const dropdownRef = useRef(null);
 
-  const formatCourse = (course) => {
-    return `${course.courseCode}-[${course.sectionName}]`;
-  };
-
-  const filterCourses = (searchTerm) => {
+  // ⚡ Bolt Optimization: Memoize search filter results and extract `.toLowerCase()`
+  // outside the filter loop to prevent O(N) string conversions per keystroke re-render.
+  const filteredCourses = React.useMemo(() => {
     if (!courses || courses.length === 0) return [];
-    if (!searchTerm) return courses.slice(0, 50);
+    if (!search) return courses.slice(0, 50);
 
-    const search = searchTerm.toLowerCase();
+    const searchLower = search.toLowerCase();
     return courses.filter(course =>
-      course.courseCode?.toLowerCase().includes(search) ||
-      course.sectionName?.toLowerCase().includes(search) ||
-      formatCourse(course).toLowerCase().includes(search)
+      course.courseCode?.toLowerCase().includes(searchLower) ||
+      course.sectionName?.toLowerCase().includes(searchLower) ||
+      formatCourse(course).toLowerCase().includes(searchLower)
     ).slice(0, 50);
-  };
+  }, [courses, search]);
 
-  const selectedCourse = courses.find(c => c.sectionId?.toString() === value);
-  const filteredCourses = filterCourses(search);
+  const selectedCourse = React.useMemo(() =>
+    courses.find(c => c.sectionId?.toString() === value),
+  [courses, value]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
