@@ -6,18 +6,19 @@ import { Badge } from "@/components/ui/badge";
 import { Check, Filter, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+const formatCourse = (course) => {
+  return `${course.courseCode}-[${course.sectionName}]`;
+};
+
 const SwapFilter = ({ courses = [], swaps = [], onFilterChange, isMobile = false }) => {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [selectedCourses, setSelectedCourses] = useState([]);
   const dropdownRef = useRef(null);
 
-  const formatCourse = (course) => {
-    return `${course.courseCode}-[${course.sectionName}]`;
-  };
-
-  // Get unique courses by courseCode for the filter list
-  const getAvailableCourses = () => {
+  // ⚡ Bolt Optimization: Memoize the unique extraction and sorting to avoid
+  // executing O(N log N) operations on thousands of courses during every render.
+  const availableCourses = React.useMemo(() => {
     const seen = new Set();
     return courses.filter(course => {
       const key = `${course.courseCode}-${course.sectionId}`;
@@ -29,20 +30,20 @@ const SwapFilter = ({ courses = [], swaps = [], onFilterChange, isMobile = false
       if (codeCompare !== 0) return codeCompare;
       return (a.sectionName || '').localeCompare(b.sectionName || '', undefined, { numeric: true });
     });
-  };
+  }, [courses]);
 
-  const availableCourses = getAvailableCourses();
+  // ⚡ Bolt Optimization: Memoize search filter results and extract `.toLowerCase()`
+  // outside the filter loop to prevent O(N) string conversions per keystroke re-render.
+  const filteredCourses = React.useMemo(() => {
+    if (!search) return availableCourses.slice(0, 50);
 
-  const filterCourses = (searchTerm) => {
-    if (!searchTerm) return availableCourses.slice(0, 50);
-
-    const search = searchTerm.toLowerCase();
+    const searchLower = search.toLowerCase();
     return availableCourses.filter(course =>
-      course.courseCode?.toLowerCase().includes(search) ||
-      course.sectionName?.toLowerCase().includes(search) ||
-      formatCourse(course).toLowerCase().includes(search)
+      course.courseCode?.toLowerCase().includes(searchLower) ||
+      course.sectionName?.toLowerCase().includes(searchLower) ||
+      formatCourse(course).toLowerCase().includes(searchLower)
     ).slice(0, 50);
-  };
+  }, [availableCourses, search]);
 
   const toggleCourse = (courseId) => {
     const newSelection = selectedCourses.includes(courseId)
@@ -62,8 +63,6 @@ const SwapFilter = ({ courses = [], swaps = [], onFilterChange, isMobile = false
   const getCourseBySection = (sectionId) => {
     return courses.find(c => c.sectionId === parseInt(sectionId));
   };
-
-  const filteredCourses = filterCourses(search);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
