@@ -235,40 +235,56 @@ const PreRegistrationPage = () => {
 
   // Apply filters and search
   const filteredCourses = useMemo(() => {
-    let filtered = [...courses];
+    const searchLower = debouncedSearchTerm ? debouncedSearchTerm.toLowerCase() : '';
+    const avoidLower = filters.avoidFaculties.length > 0 ? filters.avoidFaculties.map(f => f.toLowerCase()) : [];
+    const selectedIds = filters.onlySelected ? new Set(selectedCourses.map(c => c.sectionId)) : null;
 
-    // Apply search
-    if (debouncedSearchTerm) {
-      filtered = filtered.filter(course =>
-        course.courseCode?.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        course.faculties?.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        course.sectionName?.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
-      );
-    }
+    let filtered = [];
 
-    // Apply filters
-    if (filters.hideFilled) {
-      filtered = filtered.filter(course =>
-        course.capacity > course.consumedSeat || seatAnimations[course.sectionId] // keep if animating
-      );
-    }
+    for (let i = 0; i < courses.length; i++) {
+      const course = courses[i];
 
-    if (filters.avoidFaculties.length > 0) {
-      filtered = filtered.filter(course =>
-        !filters.avoidFaculties.some(faculty =>
-          course.faculties?.toLowerCase().includes(faculty.toLowerCase())
-        )
-      );
-    }
+      // Apply search
+      if (searchLower) {
+        const courseCodeLower = course.courseCode?.toLowerCase() || '';
+        const facultiesLower = course.faculties?.toLowerCase() || '';
+        const sectionNameLower = course.sectionName?.toLowerCase() || '';
 
-    if (filters.labFilter === 'with-lab') {
-      filtered = filtered.filter(course => course.labSchedules && course.labSchedules.length > 0);
-    } else if (filters.labFilter === 'without-lab') {
-      filtered = filtered.filter(course => !course.labSchedules || course.labSchedules.length === 0);
-    }
+        if (!courseCodeLower.includes(searchLower) &&
+            !facultiesLower.includes(searchLower) &&
+            !sectionNameLower.includes(searchLower)) {
+          continue;
+        }
+      }
 
-    if (filters.onlySelected) {
-      filtered = filtered.filter(course => selectedCourses.some(c => c.sectionId === course.sectionId));
+      // Apply filters
+      if (filters.hideFilled && !(course.capacity > course.consumedSeat || seatAnimations[course.sectionId])) {
+        continue;
+      }
+
+      if (avoidLower.length > 0) {
+        const facultiesLower = course.faculties?.toLowerCase() || '';
+        let avoid = false;
+        for (let j = 0; j < avoidLower.length; j++) {
+          if (facultiesLower.includes(avoidLower[j])) {
+            avoid = true;
+            break;
+          }
+        }
+        if (avoid) continue;
+      }
+
+      if (filters.labFilter === 'with-lab' && (!course.labSchedules || course.labSchedules.length === 0)) {
+        continue;
+      } else if (filters.labFilter === 'without-lab' && (course.labSchedules && course.labSchedules.length > 0)) {
+        continue;
+      }
+
+      if (filters.onlySelected && !selectedIds.has(course.sectionId)) {
+        continue;
+      }
+
+      filtered.push(course);
     }
 
     // Apply sorting
@@ -389,6 +405,13 @@ const PreRegistrationPage = () => {
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
   }, [showRoutineModal, bottomSheetCourse]);
+
+  // Memoize filtered faculty list to avoid recalculating on every keystroke
+  const filteredFacultyList = useMemo(() => {
+    const searchLower = facultySearch.toLowerCase();
+    if (!searchLower) return cdnFacultyList;
+    return cdnFacultyList.filter(initial => initial.toLowerCase().includes(searchLower));
+  }, [cdnFacultyList, facultySearch]);
 
   // Reset highlighted index when search changes
   useEffect(() => {
@@ -1097,19 +1120,15 @@ const PreRegistrationPage = () => {
                         }}
                         onFocus={() => setFacultyDropdownOpen(true)}
                         onKeyDown={(e) => {
-                          const filteredList = cdnFacultyList.filter(initial =>
-                            initial.toLowerCase().includes(facultySearch.toLowerCase())
-                          );
-
                           if (e.key === 'ArrowDown') {
                             e.preventDefault();
-                            setHighlightedIndex(prev => Math.min(prev + 1, filteredList.length - 1));
+                            setHighlightedIndex(prev => Math.min(prev + 1, filteredFacultyList.length - 1));
                           } else if (e.key === 'ArrowUp') {
                             e.preventDefault();
                             setHighlightedIndex(prev => Math.max(prev - 1, 0));
-                          } else if (e.key === 'Enter' && filteredList.length > 0) {
+                          } else if (e.key === 'Enter' && filteredFacultyList.length > 0) {
                             e.preventDefault();
-                            const selected = filteredList[highlightedIndex];
+                            const selected = filteredFacultyList[highlightedIndex];
                             if (selected) {
                               const isSelected = filters.avoidFaculties.includes(selected);
                               if (isSelected) {
@@ -1147,11 +1166,7 @@ const PreRegistrationPage = () => {
                           ref={facultyListRef}
                           className="overflow-y-auto max-h-[320px] faculty-dropdown-scroll"
                         >
-                          {cdnFacultyList
-                            .filter(initial =>
-                              initial.toLowerCase().includes(facultySearch.toLowerCase())
-                            )
-                            .map((initial, index) => {
+                          {filteredFacultyList.map((initial, index) => {
                               const isSelected = filters.avoidFaculties.includes(initial);
                               const isHighlighted = index === highlightedIndex;
                               return (
@@ -1183,9 +1198,7 @@ const PreRegistrationPage = () => {
                                 </div>
                               );
                             })}
-                          {cdnFacultyList.filter(initial =>
-                            initial.toLowerCase().includes(facultySearch.toLowerCase())
-                          ).length === 0 && (
+                          {filteredFacultyList.length === 0 && (
                               <div className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400 text-center">
                                 No faculties found
                               </div>
