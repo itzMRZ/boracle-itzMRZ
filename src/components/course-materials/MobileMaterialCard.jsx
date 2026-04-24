@@ -164,6 +164,7 @@ const MobileMaterialCard = ({ material, isPublic = false, onVote, onDelete }) =>
                                 : 'text-gray-400 hover:text-blue-500 hover:bg-gray-200 dark:hover:bg-gray-700'
                                 } ${(isPublic || material.isOwner) ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                             title={material.isOwner ? "You cannot vote on your own material" : "Upvote"}
+                            aria-label="Upvote"
                         >
                             {voteLoading === 'up' ? <Loader2 className="w-4 h-4 animate-spin" /> : <ArrowBigUp className={`w-4 h-4 ${material.userVote === 1 ? 'fill-current' : ''}`} />}
                         </button>
@@ -180,6 +181,7 @@ const MobileMaterialCard = ({ material, isPublic = false, onVote, onDelete }) =>
                                 : 'text-gray-400 hover:text-red-500 hover:bg-gray-200 dark:hover:bg-gray-700'
                                 } ${(isPublic || material.isOwner) ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                             title={material.isOwner ? "You cannot vote on your own material" : "Downvote"}
+                            aria-label="Downvote"
                         >
                             {voteLoading === 'down' ? <Loader2 className="w-4 h-4 animate-spin" /> : <ArrowBigDown className={`w-4 h-4 ${material.userVote === -1 ? 'fill-current' : ''}`} />}
                         </button>
