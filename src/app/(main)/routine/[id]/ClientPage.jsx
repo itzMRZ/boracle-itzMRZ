@@ -302,6 +302,7 @@ const SharedRoutinePage = () => {
                                                 <button
                                                     onClick={() => setInfoTooltipOpen(!infoTooltipOpen)}
                                                     className="ml-2.5 mt-1 text-blue-400 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+                                                    aria-label="Info"
                                                 >
                                                     <Info className="w-3.5 h-3.5" />
                                                 </button>
