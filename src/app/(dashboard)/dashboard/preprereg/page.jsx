@@ -239,10 +239,11 @@ const PreRegistrationPage = () => {
 
     // Apply search
     if (debouncedSearchTerm) {
+      const searchLower = debouncedSearchTerm.toLowerCase();
       filtered = filtered.filter(course =>
-        course.courseCode?.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        course.faculties?.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        course.sectionName?.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
+        course.courseCode?.toLowerCase().includes(searchLower) ||
+        course.faculties?.toLowerCase().includes(searchLower) ||
+        course.sectionName?.toLowerCase().includes(searchLower)
       );
     }
 
@@ -254,9 +255,10 @@ const PreRegistrationPage = () => {
     }
 
     if (filters.avoidFaculties.length > 0) {
+      const avoidFacultiesLower = filters.avoidFaculties.map(f => f.toLowerCase());
       filtered = filtered.filter(course =>
-        !filters.avoidFaculties.some(faculty =>
-          course.faculties?.toLowerCase().includes(faculty.toLowerCase())
+        !avoidFacultiesLower.some(facultyLower =>
+          course.faculties?.toLowerCase().includes(facultyLower)
         )
       );
     }
@@ -268,7 +270,8 @@ const PreRegistrationPage = () => {
     }
 
     if (filters.onlySelected) {
-      filtered = filtered.filter(course => selectedCourses.some(c => c.sectionId === course.sectionId));
+      const selectedIds = new Set(selectedCourses.map(c => c.sectionId));
+      filtered = filtered.filter(course => selectedIds.has(course.sectionId));
     }
 
     // Apply sorting
@@ -311,6 +314,10 @@ const PreRegistrationPage = () => {
   const displayedCourses = useMemo(() => {
     return filteredCourses.slice(0, displayCount);
   }, [filteredCourses, displayCount]);
+
+  const selectedSectionIds = useMemo(() => {
+    return new Set(selectedCourses.map(c => c.sectionId));
+  }, [selectedCourses]);
 
   // Reset display count when filters change
   useEffect(() => {
@@ -827,7 +834,7 @@ const PreRegistrationPage = () => {
           <div className="space-y-3 px-1">
             {displayedCourses.map((course, index) => {
               const isLast = index === displayedCourses.length - 1;
-              const isSelected = !!selectedCourses.find(c => c.sectionId === course.sectionId);
+              const isSelected = selectedSectionIds.has(course.sectionId);
 
               return (
                 <div
@@ -936,7 +943,7 @@ const PreRegistrationPage = () => {
               <tbody>
                 {displayedCourses.map((course, index) => {
                   const isLast = index === displayedCourses.length - 1;
-                  const isSelected = selectedCourses.find(c => c.sectionId === course.sectionId);
+                  const isSelected = selectedSectionIds.has(course.sectionId);
                   const availableSeats = course.capacity - course.consumedSeat;
 
                   return (
