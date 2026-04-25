@@ -95,8 +95,9 @@ const RoutineSelectorSheet = ({ isOpen, onClose, routines = [], selectedRoutineI
 
                 {/* Close button */}
                 <button
+                    aria-label="Close routine selector"
                     onClick={handleClose}
-                    className="absolute top-3 right-3 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+                    className="absolute top-3 right-3 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:outline-none"
                 >
                     <X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                 </button>

@@ -156,8 +156,9 @@ const SwapFilter = ({ courses = [], swaps = [], onFilterChange, isMobile = false
                 <p className="text-sm text-gray-500 dark:text-blue-300/70">Search and filter courses</p>
               </div>
               <button
+                aria-label="Close filters"
                 onClick={() => setOpen(false)}
-                className="p-2 hover:bg-gray-100 dark:hover:bg-blue-800/30 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-100 dark:hover:bg-blue-800/30 rounded-lg transition-colors focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:outline-none"
                 title="Close"
               >
                 <X className="w-5 h-5 text-gray-500 dark:text-blue-300" />
@@ -195,11 +196,12 @@ const SwapFilter = ({ courses = [], swaps = [], onFilterChange, isMobile = false
                         <Badge key={sectionId} className="text-xs bg-blue-600 hover:bg-blue-700 text-white border-0 py-1 px-2.5">
                           {course ? formatCourse(course) : `Section ${sectionId}`}
                           <button
+                            aria-label="Remove filter"
                             onClick={(e) => {
                               e.stopPropagation();
                               toggleCourse(sectionId);
                             }}
-                            className="ml-1.5 hover:text-red-200 transition-colors"
+                            className="ml-1.5 hover:text-red-200 transition-colors focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:outline-none rounded-sm"
                           >
                             <X className="h-3 w-3" />
                           </button>

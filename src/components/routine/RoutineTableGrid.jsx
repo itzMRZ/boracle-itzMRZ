@@ -214,11 +214,12 @@ const RoutineTableGrid = ({
 
                                   {showRemoveButtons && onRemoveCourse && (
                                     <button
+                                      aria-label="Remove course"
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         onRemoveCourse(course);
                                       }}
-                                      className="export-hide absolute top-1.5 right-1.5 p-1 bg-white/70 dark:bg-black/40 text-red-500 hover:bg-red-500 hover:text-white rounded-md opacity-60 group-hover:opacity-100 transition-all shadow-sm"
+                                      className="export-hide absolute top-1.5 right-1.5 p-1 bg-white/70 dark:bg-black/40 text-red-500 hover:bg-red-500 hover:text-white rounded-md opacity-60 group-hover:opacity-100 focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:outline-none focus-visible:opacity-100 transition-all shadow-sm"
                                     >
                                       <X className="w-3.5 h-3.5" />
                                     </button>
