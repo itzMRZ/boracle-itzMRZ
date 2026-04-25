@@ -166,6 +166,7 @@ const CourseBottomSheet = ({ course, onClose, courseTitle, extraFields = [] }) =
 
                 {/* Close button */}
                 <button
+                    aria-label="Close bottom sheet"
                     onClick={() => {
                         if (window.history.state?.modalOpen) {
                             window.history.back();
@@ -173,7 +174,7 @@ const CourseBottomSheet = ({ course, onClose, courseTitle, extraFields = [] }) =
                             handleClose();
                         }
                     }}
-                    className="absolute top-3 right-3 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+                    className="absolute top-3 right-3 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:outline-none"
                 >
                     <X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                 </button>
