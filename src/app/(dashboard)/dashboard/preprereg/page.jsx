@@ -239,10 +239,11 @@ const PreRegistrationPage = () => {
 
     // Apply search
     if (debouncedSearchTerm) {
+      const searchLower = debouncedSearchTerm.toLowerCase();
       filtered = filtered.filter(course =>
-        course.courseCode?.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        course.faculties?.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        course.sectionName?.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
+        course.courseCode?.toLowerCase().includes(searchLower) ||
+        course.faculties?.toLowerCase().includes(searchLower) ||
+        course.sectionName?.toLowerCase().includes(searchLower)
       );
     }
 
@@ -254,11 +255,14 @@ const PreRegistrationPage = () => {
     }
 
     if (filters.avoidFaculties.length > 0) {
-      filtered = filtered.filter(course =>
-        !filters.avoidFaculties.some(faculty =>
-          course.faculties?.toLowerCase().includes(faculty.toLowerCase())
-        )
-      );
+      const avoidFacultiesLower = filters.avoidFaculties.map(faculty => faculty.toLowerCase());
+      filtered = filtered.filter(course => {
+        if (!course.faculties) return true;
+        const facultiesLower = course.faculties.toLowerCase();
+        return !avoidFacultiesLower.some(facultyLower =>
+          facultiesLower.includes(facultyLower)
+        );
+      });
     }
 
     if (filters.labFilter === 'with-lab') {
