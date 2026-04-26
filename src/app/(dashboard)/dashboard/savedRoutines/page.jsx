@@ -576,6 +576,7 @@ const SavedRoutinesPage = () => {
 
   // Delete routine
   const deleteRoutine = async (routineId) => {
+    if (!window.confirm("Are you sure you want to delete this routine? This action cannot be undone.")) return;
     try {
       const response = await fetch(`/api/routine/${routineId}`, {
         method: 'DELETE',
@@ -595,6 +596,7 @@ const SavedRoutinesPage = () => {
 
   // Delete merged routine
   const deleteMergedRoutine = async (routineId) => {
+    if (!window.confirm("Are you sure you want to delete this merged routine? This action cannot be undone.")) return;
     try {
       const response = await fetch(`/api/merged-routine/${routineId}`, {
         method: 'DELETE',
@@ -1188,6 +1190,8 @@ const SavedRoutinesPage = () => {
                 <button
                   onClick={() => deleteRoutine(routine.id)}
                   className="px-3 py-2 hover:bg-red-100 dark:hover:bg-red-700 text-red-600 dark:text-red-400 rounded-lg flex items-center justify-center gap-2 text-sm transition-colors"
+                  title="Delete routine"
+                  aria-label="Delete routine"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
@@ -1375,6 +1379,8 @@ const SavedRoutinesPage = () => {
                     <button
                       onClick={() => deleteMergedRoutine(routine.id)}
                       className="px-3 py-2 hover:bg-red-100 dark:hover:bg-red-700 text-red-600 dark:text-red-400 rounded-lg flex items-center justify-center gap-2 text-sm transition-colors"
+                      title="Delete routine"
+                      aria-label="Delete routine"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>

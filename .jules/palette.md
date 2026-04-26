@@ -1,0 +1,3 @@
+## 2024-05-19 - Add confirmation dialogs and accessibility labels for destructive actions
+**Learning:** Found that destructive actions (like deleting a routine) lacked an interstitial confirmation check, increasing the risk of accidental data loss. Furthermore, the icon-only delete button was missing crucial `aria-label` attributes, making it unreadable to screen readers.
+**Action:** Implemented `window.confirm` for routine deletion actions and added `aria-label` along with `title` to the icon-only buttons (`<Trash2 />`). Next time, ensure all destructive actions require a clear confirmation and verify that every icon-only button is accompanied by appropriate ARIA attributes.
