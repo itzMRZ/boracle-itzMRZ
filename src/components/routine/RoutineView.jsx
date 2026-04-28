@@ -183,6 +183,7 @@ const RoutineView = ({
                     {onClose && (
                         <button
                             onClick={handleClose}
+                            aria-label="Close"
                             className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-gray-600 dark:text-gray-300"
                         >
                             <X className="w-5 h-5" />
@@ -234,6 +235,7 @@ const RoutineView = ({
                             <button
                                 onClick={onSave}
                                 disabled={isSaving}
+                                aria-label="Save Routine"
                                 className="p-2.5 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 dark:disabled:bg-gray-600 text-white rounded-lg transition-colors"
                                 title={isSaving ? 'Saving...' : 'Save Routine'}
                             >
@@ -244,6 +246,7 @@ const RoutineView = ({
                             <button
                                 onClick={handleExport}
                                 disabled={courses.length === 0}
+                                aria-label="Save as PNG"
                                 className="p-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-lg transition-colors"
                                 title="Save as PNG"
                             >
@@ -254,6 +257,7 @@ const RoutineView = ({
                         {onEdit && (
                             <button
                                 onClick={onEdit}
+                                aria-label="Edit Routine"
                                 className="p-2.5 hover:bg-blue-100 dark:hover:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg transition-colors border border-blue-200 dark:border-blue-800"
                                 title="Edit Routine"
                             >
@@ -264,6 +268,7 @@ const RoutineView = ({
 
                         <button
                             onClick={handleClose}
+                            aria-label="Close"
                             className="p-2.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-gray-600 dark:text-gray-300"
                         >
                             <X className="w-5 h-5" />
