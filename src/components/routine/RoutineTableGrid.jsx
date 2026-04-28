@@ -218,6 +218,7 @@ const RoutineTableGrid = ({
                                         e.stopPropagation();
                                         onRemoveCourse(course);
                                       }}
+                                      aria-label="Remove Course"
                                       className="export-hide absolute top-1.5 right-1.5 p-1 bg-white/70 dark:bg-black/40 text-red-500 hover:bg-red-500 hover:text-white rounded-md opacity-60 group-hover:opacity-100 transition-all shadow-sm"
                                     >
                                       <X className="w-3.5 h-3.5" />
