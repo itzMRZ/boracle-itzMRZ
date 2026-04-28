@@ -235,41 +235,55 @@ const PreRegistrationPage = () => {
 
   // Apply filters and search
   const filteredCourses = useMemo(() => {
-    let filtered = [...courses];
+    // Hoist string transformations outside the loop
+    const searchLower = debouncedSearchTerm ? debouncedSearchTerm.toLowerCase() : '';
+    const avoidFacultiesLower = filters.avoidFaculties.map(f => f.toLowerCase());
 
-    // Apply search
-    if (debouncedSearchTerm) {
-      filtered = filtered.filter(course =>
-        course.courseCode?.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        course.faculties?.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        course.sectionName?.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
-      );
-    }
-
-    // Apply filters
-    if (filters.hideFilled) {
-      filtered = filtered.filter(course =>
-        course.capacity > course.consumedSeat || seatAnimations[course.sectionId] // keep if animating
-      );
-    }
-
-    if (filters.avoidFaculties.length > 0) {
-      filtered = filtered.filter(course =>
-        !filters.avoidFaculties.some(faculty =>
-          course.faculties?.toLowerCase().includes(faculty.toLowerCase())
-        )
-      );
-    }
-
-    if (filters.labFilter === 'with-lab') {
-      filtered = filtered.filter(course => course.labSchedules && course.labSchedules.length > 0);
-    } else if (filters.labFilter === 'without-lab') {
-      filtered = filtered.filter(course => !course.labSchedules || course.labSchedules.length === 0);
-    }
-
+    // Pre-compute O(1) lookup set
+    const selectedCourseIds = new Set();
     if (filters.onlySelected) {
-      filtered = filtered.filter(course => selectedCourses.some(c => c.sectionId === course.sectionId));
+      for (const c of selectedCourses) {
+        selectedCourseIds.add(c.sectionId);
+      }
     }
+
+    let filtered = courses.filter(course => {
+      // 1. Search term
+      if (searchLower) {
+        const matchesSearch =
+          course.courseCode?.toLowerCase().includes(searchLower) ||
+          course.faculties?.toLowerCase().includes(searchLower) ||
+          course.sectionName?.toLowerCase().includes(searchLower);
+        if (!matchesSearch) return false;
+      }
+
+      // 2. Hide filled
+      if (filters.hideFilled) {
+        const hasSeats = course.capacity > course.consumedSeat || seatAnimations[course.sectionId];
+        if (!hasSeats) return false;
+      }
+
+      // 3. Avoid faculties
+      if (avoidFacultiesLower.length > 0 && course.faculties) {
+        const courseFacultiesLower = course.faculties.toLowerCase();
+        const shouldAvoid = avoidFacultiesLower.some(facultyLower => courseFacultiesLower.includes(facultyLower));
+        if (shouldAvoid) return false;
+      }
+
+      // 4. Lab filter
+      if (filters.labFilter === 'with-lab') {
+        if (!course.labSchedules || course.labSchedules.length === 0) return false;
+      } else if (filters.labFilter === 'without-lab') {
+        if (course.labSchedules && course.labSchedules.length > 0) return false;
+      }
+
+      // 5. Only selected
+      if (filters.onlySelected) {
+        if (!selectedCourseIds.has(course.sectionId)) return false;
+      }
+
+      return true;
+    });
 
     // Apply sorting
     if (sortConfig.key) {
