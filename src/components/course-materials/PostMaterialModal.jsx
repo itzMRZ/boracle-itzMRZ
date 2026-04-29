@@ -356,7 +356,7 @@ const PostMaterialModal = ({ onMaterialPosted }) => {
                                     <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg border border-blue-200 dark:border-blue-800/50 bg-blue-50 dark:bg-blue-500/10">
                                         <FileText className="w-4 h-4 text-blue-500 shrink-0" />
                                         <span className="text-sm text-blue-700 dark:text-blue-300 truncate flex-1">{file.name}</span>
-                                        <button onClick={() => setFile(null)} className="text-gray-400 hover:text-red-500">
+                                        <button onClick={() => setFile(null)} aria-label="Remove file" className="text-gray-400 hover:text-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400">
                                             <X className="w-4 h-4" />
                                         </button>
                                     </div>

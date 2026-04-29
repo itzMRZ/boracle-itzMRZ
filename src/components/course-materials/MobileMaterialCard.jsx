@@ -159,7 +159,8 @@ const MobileMaterialCard = ({ material, isPublic = false, onVote, onDelete }) =>
                         <button
                             onClick={() => !material.isOwner && handleVote(1)}
                             disabled={isPublic || voteLoading === 'up' || material.isOwner}
-                            className={`p-1 rounded transition-colors ${material.userVote === 1
+                            aria-label="Upvote"
+                            className={`p-1 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 ${material.userVote === 1
                                 ? 'text-blue-500 bg-blue-100 dark:bg-blue-500/20'
                                 : 'text-gray-400 hover:text-blue-500 hover:bg-gray-200 dark:hover:bg-gray-700'
                                 } ${(isPublic || material.isOwner) ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
@@ -175,7 +176,8 @@ const MobileMaterialCard = ({ material, isPublic = false, onVote, onDelete }) =>
                         <button
                             onClick={() => !material.isOwner && handleVote(-1)}
                             disabled={isPublic || voteLoading === 'down' || material.isOwner}
-                            className={`p-1 rounded transition-colors ${material.userVote === -1
+                            aria-label="Downvote"
+                            className={`p-1 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 ${material.userVote === -1
                                 ? 'text-red-500 bg-red-100 dark:bg-red-500/20'
                                 : 'text-gray-400 hover:text-red-500 hover:bg-gray-200 dark:hover:bg-gray-700'
                                 } ${(isPublic || material.isOwner) ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
@@ -216,7 +218,7 @@ const MobileMaterialCard = ({ material, isPublic = false, onVote, onDelete }) =>
                     {material.postDescription?.length > 100 && (
                         <button
                             onClick={() => setExpanded(!expanded)}
-                            className="text-xs text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 mt-1 flex items-center gap-0.5 font-medium"
+                            className="text-xs text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 mt-1 flex items-center gap-0.5 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
                         >
                             {expanded ? <><ChevronUp className="w-3 h-3" /> Show less</> : <><ChevronDown className="w-3 h-3" /> Read more</>}
                         </button>
@@ -288,6 +290,7 @@ const MobileMaterialCard = ({ material, isPublic = false, onVote, onDelete }) =>
                             </Button>
                             <Button
                                 size="sm"
+                                aria-label="Close Viewer"
                                 className="h-7 px-3 text-xs gap-1.5 bg-red-500 hover:bg-red-600 dark:bg-red-500 dark:hover:bg-red-600 !text-white shadow-sm"
                                 onClick={() => setViewerOpen(false)}
                             >
