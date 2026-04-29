@@ -239,10 +239,11 @@ const PreRegistrationPage = () => {
 
     // Apply search
     if (debouncedSearchTerm) {
+      const lowerSearchTerm = debouncedSearchTerm.toLowerCase();
       filtered = filtered.filter(course =>
-        course.courseCode?.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        course.faculties?.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        course.sectionName?.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
+        course.courseCode?.toLowerCase().includes(lowerSearchTerm) ||
+        course.faculties?.toLowerCase().includes(lowerSearchTerm) ||
+        course.sectionName?.toLowerCase().includes(lowerSearchTerm)
       );
     }
 
@@ -254,11 +255,14 @@ const PreRegistrationPage = () => {
     }
 
     if (filters.avoidFaculties.length > 0) {
-      filtered = filtered.filter(course =>
-        !filters.avoidFaculties.some(faculty =>
-          course.faculties?.toLowerCase().includes(faculty.toLowerCase())
-        )
-      );
+      const lowerAvoidFaculties = filters.avoidFaculties.map(f => f.toLowerCase());
+      filtered = filtered.filter(course => {
+        const courseFacultiesLower = course.faculties?.toLowerCase();
+        if (!courseFacultiesLower) return true;
+        return !lowerAvoidFaculties.some(faculty =>
+          courseFacultiesLower.includes(faculty)
+        );
+      });
     }
 
     if (filters.labFilter === 'with-lab') {
@@ -1097,8 +1101,9 @@ const PreRegistrationPage = () => {
                         }}
                         onFocus={() => setFacultyDropdownOpen(true)}
                         onKeyDown={(e) => {
+                          const lowerFacultySearch = facultySearch.toLowerCase();
                           const filteredList = cdnFacultyList.filter(initial =>
-                            initial.toLowerCase().includes(facultySearch.toLowerCase())
+                            initial.toLowerCase().includes(lowerFacultySearch)
                           );
 
                           if (e.key === 'ArrowDown') {
@@ -1147,12 +1152,14 @@ const PreRegistrationPage = () => {
                           ref={facultyListRef}
                           className="overflow-y-auto max-h-[320px] faculty-dropdown-scroll"
                         >
-                          {cdnFacultyList
-                            .filter(initial =>
-                              initial.toLowerCase().includes(facultySearch.toLowerCase())
-                            )
-                            .map((initial, index) => {
-                              const isSelected = filters.avoidFaculties.includes(initial);
+                          {(() => {
+                            const lowerFacultySearch = facultySearch.toLowerCase();
+                            return cdnFacultyList
+                              .filter(initial =>
+                                initial.toLowerCase().includes(lowerFacultySearch)
+                              )
+                              .map((initial, index) => {
+                                const isSelected = filters.avoidFaculties.includes(initial);
                               const isHighlighted = index === highlightedIndex;
                               return (
                                 <div
@@ -1182,14 +1189,23 @@ const PreRegistrationPage = () => {
                                   )}
                                 </div>
                               );
-                            })}
-                          {cdnFacultyList.filter(initial =>
-                            initial.toLowerCase().includes(facultySearch.toLowerCase())
-                          ).length === 0 && (
-                              <div className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400 text-center">
-                                No faculties found
-                              </div>
-                            )}
+                            });
+                          })()}
+
+                          {(() => {
+                            const lowerFacultySearch = facultySearch.toLowerCase();
+                            const hasResults = cdnFacultyList.some(initial =>
+                              initial.toLowerCase().includes(lowerFacultySearch)
+                            );
+                            if (!hasResults) {
+                              return (
+                                <div className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400 text-center">
+                                  No faculties found
+                                </div>
+                              );
+                            }
+                            return null;
+                          })()}
                         </div>
                       </div>
                     )}
