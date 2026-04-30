@@ -36,7 +36,11 @@ const ShareModal = ({ routineId, type = 'routine', onClose }) => {
                             <Share2 className="w-5 h-5 text-blue-500 dark:text-blue-400" />
                             <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Share Routine</h2>
                         </div>
-                        <button onClick={onClose} className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
+                        <button
+                            onClick={onClose}
+                            className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-1 dark:focus-visible:ring-gray-500"
+                            aria-label="Close share dialog"
+                        >
                             <X className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                         </button>
                     </div>
@@ -51,7 +55,7 @@ const ShareModal = ({ routineId, type = 'routine', onClose }) => {
                             </div>
                             <button
                                 onClick={copyLink}
-                                className={`flex-shrink-0 px-3 py-2.5 rounded-lg flex items-center gap-1.5 text-sm font-medium transition-all ${linkCopied
+                                className={`flex-shrink-0 px-3 py-2.5 rounded-lg flex items-center gap-1.5 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-1 dark:focus-visible:ring-gray-500 ${linkCopied
                                     ? 'bg-green-600 text-white'
                                     : 'bg-blue-600 hover:bg-blue-700 text-white'
                                     }`}
