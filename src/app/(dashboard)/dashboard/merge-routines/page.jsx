@@ -113,11 +113,14 @@ const MergeRoutinesPage = () => {
         const coursesResponse = await fetch('https://usis-cdn.eniamza.com/connect.json');
         const allAvailableCourses = await coursesResponse.json();
 
+        // ⚡ Bolt: Precompute course map for O(1) lookups
+        const courseMap = new Map(allAvailableCourses.map(c => [c.sectionId, c]));
+
         const allCourses = [];
 
         editData.forEach(entry => {
           const friendCourses = (entry.sectionIds || []).map(sectionId => {
-            const course = allAvailableCourses.find(c => c.sectionId === sectionId);
+            const course = courseMap.get(sectionId);
             if (course) {
               return {
                 ...course,
@@ -342,9 +345,12 @@ const MergeRoutinesPage = () => {
 
     // First, fetch all available courses from the external API
     let allAvailableCourses = [];
+    // ⚡ Bolt: Precompute course map for O(1) lookups during routine merge
+    let courseMap = new Map();
     try {
       const coursesResponse = await fetch('https://usis-cdn.eniamza.com/connect.json');
       allAvailableCourses = await coursesResponse.json();
+      courseMap = new Map(allAvailableCourses.map(c => [c.sectionId, c]));
     } catch (error) {
       console.error('Error fetching course data:', error);
       toast.error('Failed to fetch course data');
@@ -370,7 +376,7 @@ const MergeRoutinesPage = () => {
 
             // Find courses by section IDs
             const coursesForThisRoutine = sectionIds.map(sectionId => {
-              const course = allAvailableCourses.find(c => c.sectionId === sectionId);
+              const course = courseMap.get(sectionId);
               if (course) {
                 return {
                   ...course,
