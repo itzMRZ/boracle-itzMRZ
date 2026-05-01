@@ -159,6 +159,7 @@ const SwapFilter = ({ courses = [], swaps = [], onFilterChange, isMobile = false
                 onClick={() => setOpen(false)}
                 className="p-2 hover:bg-gray-100 dark:hover:bg-blue-800/30 rounded-lg transition-colors"
                 title="Close"
+                aria-label="Close"
               >
                 <X className="w-5 h-5 text-gray-500 dark:text-blue-300" />
               </button>
@@ -200,6 +201,7 @@ const SwapFilter = ({ courses = [], swaps = [], onFilterChange, isMobile = false
                               toggleCourse(sectionId);
                             }}
                             className="ml-1.5 hover:text-red-200 transition-colors"
+                            aria-label="Remove filter"
                           >
                             <X className="h-3 w-3" />
                           </button>

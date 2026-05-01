@@ -90,6 +90,7 @@ const MobileCourseCard = ({
                         ? 'bg-red-600 hover:bg-red-700 text-white'
                         : 'border border-gray-400 dark:border-gray-500 text-gray-700 dark:text-white hover:bg-green-600 hover:border-green-600 hover:text-white'
                         }`}
+                    aria-label={isSelected ? "Remove course" : "Add course"}
                 >
                     {isSelected ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
                 </button>
