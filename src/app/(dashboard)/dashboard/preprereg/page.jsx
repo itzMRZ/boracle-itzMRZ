@@ -235,41 +235,47 @@ const PreRegistrationPage = () => {
 
   // Apply filters and search
   const filteredCourses = useMemo(() => {
-    let filtered = [...courses];
+    const searchLower = debouncedSearchTerm ? debouncedSearchTerm.toLowerCase() : null;
+    const avoidFacultiesLower = filters.avoidFaculties.map(f => f.toLowerCase());
+    const selectedCourseSectionIds = filters.onlySelected ? new Set(selectedCourses.map(c => c.sectionId)) : null;
 
-    // Apply search
-    if (debouncedSearchTerm) {
-      filtered = filtered.filter(course =>
-        course.courseCode?.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        course.faculties?.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        course.sectionName?.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
-      );
-    }
+    let filtered = courses.filter(course => {
+      // Apply search
+      if (searchLower) {
+        const matchesSearch =
+          course.courseCode?.toLowerCase().includes(searchLower) ||
+          course.faculties?.toLowerCase().includes(searchLower) ||
+          course.sectionName?.toLowerCase().includes(searchLower);
+        if (!matchesSearch) return false;
+      }
 
-    // Apply filters
-    if (filters.hideFilled) {
-      filtered = filtered.filter(course =>
-        course.capacity > course.consumedSeat || seatAnimations[course.sectionId] // keep if animating
-      );
-    }
+      // Apply hideFilled
+      if (filters.hideFilled && !(course.capacity > course.consumedSeat || seatAnimations[course.sectionId])) {
+        return false;
+      }
 
-    if (filters.avoidFaculties.length > 0) {
-      filtered = filtered.filter(course =>
-        !filters.avoidFaculties.some(faculty =>
-          course.faculties?.toLowerCase().includes(faculty.toLowerCase())
-        )
-      );
-    }
+      // Apply avoidFaculties
+      if (avoidFacultiesLower.length > 0 && course.faculties) {
+        const courseFacultiesLower = course.faculties.toLowerCase();
+        if (avoidFacultiesLower.some(faculty => courseFacultiesLower.includes(faculty))) {
+          return false;
+        }
+      }
 
-    if (filters.labFilter === 'with-lab') {
-      filtered = filtered.filter(course => course.labSchedules && course.labSchedules.length > 0);
-    } else if (filters.labFilter === 'without-lab') {
-      filtered = filtered.filter(course => !course.labSchedules || course.labSchedules.length === 0);
-    }
+      // Apply labFilter
+      if (filters.labFilter === 'with-lab' && (!course.labSchedules || course.labSchedules.length === 0)) {
+        return false;
+      } else if (filters.labFilter === 'without-lab' && (course.labSchedules && course.labSchedules.length > 0)) {
+        return false;
+      }
 
-    if (filters.onlySelected) {
-      filtered = filtered.filter(course => selectedCourses.some(c => c.sectionId === course.sectionId));
-    }
+      // Apply onlySelected
+      if (selectedCourseSectionIds && !selectedCourseSectionIds.has(course.sectionId)) {
+        return false;
+      }
+
+      return true;
+    });
 
     // Apply sorting
     if (sortConfig.key) {

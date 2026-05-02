@@ -220,9 +220,11 @@ const CourseSwapPage = () => {
   // Get all available courses (current + all cached backups) for filtering
   const allAvailableCourses = useMemo(() => {
     const allCourses = [...currentCourses];
+    const seenSectionIds = new Set(currentCourses.map(c => c.sectionId));
     Object.values(semesterCoursesCache).forEach(courses => {
       courses.forEach(course => {
-        if (!allCourses.find(c => c.sectionId === course.sectionId)) {
+        if (!seenSectionIds.has(course.sectionId)) {
+          seenSectionIds.add(course.sectionId);
           allCourses.push(course);
         }
       });
