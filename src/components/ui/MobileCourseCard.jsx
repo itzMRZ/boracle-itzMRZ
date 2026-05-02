@@ -85,6 +85,7 @@ const MobileCourseCard = ({
                 </div>
 
                 <button
+                    aria-label={isSelected ? "Remove course" : "Add course"}
                     onClick={(e) => { e.stopPropagation(); onToggle(course); }}
                     className={`p-2 rounded-lg transition-colors ${isSelected
                         ? 'bg-red-600 hover:bg-red-700 text-white'
