@@ -21,7 +21,7 @@ export default function ProfileDropdown() {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="focus:outline-none">
+      <DropdownMenuTrigger className="focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900 rounded-full" aria-label="User profile menu">
         <div className="flex items-center gap-2">
           {session?.user?.image ? (
             <img
