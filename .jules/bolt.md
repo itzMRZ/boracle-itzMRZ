@@ -1,0 +1,3 @@
+## 2024-05-18 - [Optimize Array Filtering and Transformation on Large Lists]
+**Learning:** In the CDN data fetched from `connect.json`, `course.faculties` contains stringified, comma-separated lists of faculty initials rather than clean arrays. When constructing `cdnFacultyList`, the array needs to be computed with `useMemo` strictly tied to `courses.length` to avoid O(N) regex splitting and string allocations across 5000+ courses on every re-render.
+**Action:** Always wrap parsing logic over large CDN payloads in `useMemo` hooks with explicit, minimal dependency arrays (e.g., `[data.length]`) to establish stable references and prevent blocking the main thread during typing or layout shifts.
