@@ -68,6 +68,7 @@ export default function NavigationBar() {
                     variant="ghost"
                     size="icon"
                     className="hover:bg-blue-50 dark:hover:bg-blue-900/30"
+                    aria-label="Open mobile menu"
                   >
                     <Menu className="h-5 w-5 text-gray-700 dark:text-gray-200" />
                   </Button>
@@ -147,7 +148,9 @@ export default function NavigationBar() {
             <div className="relative" ref={toolsDropdownRef}>
               <button
                 onClick={() => setToolsOpen(!toolsOpen)}
-                className="flex items-center gap-1 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-all duration-200"
+                className="flex items-center gap-1 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
+                aria-expanded={toolsOpen}
+                aria-haspopup="menu"
               >
                 Tools
                 <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${toolsOpen ? 'rotate-180' : ''}`} />

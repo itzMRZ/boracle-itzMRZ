@@ -1,0 +1,3 @@
+## 2026-05-03 - Focus State Visibility with focus:outline-none
+**Learning:** When using `focus:outline-none` to remove default browser focus rings (which can look unstyled or blocky), it completely strips focus visibility for keyboard users unless explicitly replaced. In this codebase, the pattern is to pair it with Tailwind's `focus-visible` utility classes.
+**Action:** Whenever removing the default outline on interactive elements like buttons or dropdown triggers, always add equivalent `focus-visible:ring-2 focus-visible:ring-blue-500` (with appropriate offsets) to maintain keyboard accessibility.
