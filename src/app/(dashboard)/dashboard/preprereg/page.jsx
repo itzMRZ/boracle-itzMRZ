@@ -575,6 +575,16 @@ const PreRegistrationPage = () => {
     );
   };
 
+  // ⚡ Bolt Optimization: Memoize the filtered faculty list to prevent O(N*M) string allocations
+  // during rendering and avoid repeating the exact same filter loop 3 times per render (in onKeyDown, map, and length check)
+  const filteredFacultyList = useMemo(() => {
+    if (!facultySearch) return cdnFacultyList;
+    const lowerSearch = facultySearch.toLowerCase();
+    return cdnFacultyList.filter(initial =>
+      initial.toLowerCase().includes(lowerSearch)
+    );
+  }, [cdnFacultyList, facultySearch]);
+
   return (
     <div className="min-h-screen text-gray-100 pb-24">
       {/* Toast Notification */}
@@ -1097,19 +1107,15 @@ const PreRegistrationPage = () => {
                         }}
                         onFocus={() => setFacultyDropdownOpen(true)}
                         onKeyDown={(e) => {
-                          const filteredList = cdnFacultyList.filter(initial =>
-                            initial.toLowerCase().includes(facultySearch.toLowerCase())
-                          );
-
                           if (e.key === 'ArrowDown') {
                             e.preventDefault();
-                            setHighlightedIndex(prev => Math.min(prev + 1, filteredList.length - 1));
+                            setHighlightedIndex(prev => Math.min(prev + 1, filteredFacultyList.length - 1));
                           } else if (e.key === 'ArrowUp') {
                             e.preventDefault();
                             setHighlightedIndex(prev => Math.max(prev - 1, 0));
-                          } else if (e.key === 'Enter' && filteredList.length > 0) {
+                          } else if (e.key === 'Enter' && filteredFacultyList.length > 0) {
                             e.preventDefault();
-                            const selected = filteredList[highlightedIndex];
+                            const selected = filteredFacultyList[highlightedIndex];
                             if (selected) {
                               const isSelected = filters.avoidFaculties.includes(selected);
                               if (isSelected) {
@@ -1147,10 +1153,7 @@ const PreRegistrationPage = () => {
                           ref={facultyListRef}
                           className="overflow-y-auto max-h-[320px] faculty-dropdown-scroll"
                         >
-                          {cdnFacultyList
-                            .filter(initial =>
-                              initial.toLowerCase().includes(facultySearch.toLowerCase())
-                            )
+                          {filteredFacultyList
                             .map((initial, index) => {
                               const isSelected = filters.avoidFaculties.includes(initial);
                               const isHighlighted = index === highlightedIndex;
@@ -1183,9 +1186,7 @@ const PreRegistrationPage = () => {
                                 </div>
                               );
                             })}
-                          {cdnFacultyList.filter(initial =>
-                            initial.toLowerCase().includes(facultySearch.toLowerCase())
-                          ).length === 0 && (
+                          {filteredFacultyList.length === 0 && (
                               <div className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400 text-center">
                                 No faculties found
                               </div>
